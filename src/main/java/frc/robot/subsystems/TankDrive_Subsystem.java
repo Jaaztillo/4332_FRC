@@ -74,7 +74,5 @@ public class TankDrive_Subsystem extends SubsystemBase
   public void periodic() 
   {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("LEFT PERCENT OUT", get_percent_out_left());
-    SmartDashboard.putNumber("RIGHT PERCENT OUT", get_percent_out_right());
   }
 }
