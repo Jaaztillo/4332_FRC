@@ -10,58 +10,43 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TankDriveConstants;
 
-// spark imports (SparkMax, SparkMaxConfig, MotorType, PersistMode, ResetMode)
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+// TalonFX
+import com.ctre.phoenix.motorcontrol.can.*;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 public class TankDrive_Subsystem extends SubsystemBase 
 {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  // Motors | Right side
-  private final SparkMax left_leader = new SparkMax(TankDriveConstants.left_leader_ID, MotorType.kBrushed);
-  private final SparkMax left_follower = new SparkMax(TankDriveConstants.left_follower_ID, MotorType.kBrushed);
+  // Define Leaders
+  private final WPI_TalonSRX left_leader = new WPI_TalonSRX(TankDriveConstants.left_leader_ID);
+  private final WPI_TalonSRX right_leader = new WPI_TalonSRX(TankDriveConstants.right_leader_ID);
 
-  // Motors | Right side
-  private final SparkMax right_leader = new SparkMax(TankDriveConstants.right_leader_ID, MotorType.kBrushed);
-  private final SparkMax right_follower = new SparkMax(TankDriveConstants.right_follower_ID, MotorType.kBrushed);
+  // Define Followers
+  private final WPI_TalonSRX left_follower = new WPI_TalonSRX(TankDriveConstants.left_follower_ID);
+  private final WPI_TalonSRX right_follower = new WPI_TalonSRX(TankDriveConstants.right_follower_ID);
 
-  // Differential Drive
   private final DifferentialDrive drive = new DifferentialDrive(left_leader, right_leader);
 
-  private final SparkMaxConfig drive_config = new SparkMaxConfig();
-
   /** Creates a new TankDrive_Subsystem. */
-  @SuppressWarnings("removal")
   public TankDrive_Subsystem () 
   {
     m_chooser.setDefaultOption("Default Auto", TankDriveConstants.kDefault_Auto);
     m_chooser.addOption("My Auto", TankDriveConstants.kCustom_Auto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    // setting limits to the sparks
-    drive_config.smartCurrentLimit(60);
-    drive_config.voltageCompensation(12);
+    // Configure Followers
+    left_follower.follow(left_leader);
+    right_follower.follow(right_leader);
 
-    // setting leftFollower to follow leftLeader
-    drive_config.follow(left_leader);
-    left_follower.configure(drive_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Basic Talon SRX Config (Optional)
+    left_leader.configContinuousCurrentLimit(40); // Standard FRC limit
+    left_leader.enableCurrentLimit(true);
+    left_leader.setNeutralMode(NeutralMode.Brake);
 
-    // setting rightFollower to follow rightLeader
-    drive_config.follow(right_leader);
-    right_follower.configure(drive_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // setting it so that the left and right motors are no longer followers of anyone else
-    drive_config.disableFollowerMode();
-    right_follower.configure(drive_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    left_follower.configure(drive_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // MIGHT NEED TO INVERT RIGHT WHEELS OR LEFT WHEELS SO UNCOMMENT THIS OUT IF NEEDED
-    // right_leader.setInverted(true);
-    // right_follower.setInverted(true);
+    // INVERSE
+    left_follower.setInverted(true);
+    right_follower.setInverted(true);
   }
 
   public void drive (double Y, double X)
