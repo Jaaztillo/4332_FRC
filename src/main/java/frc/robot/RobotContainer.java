@@ -1,14 +1,18 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+/*
+  * MASTER PROGRAMMERS WORK
+  */
 
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Shooter_Command;
+
+import frc.robot.commands.Shoot_SequenceCommand;
 import frc.robot.commands.TankDrive_Command;
+
+import frc.robot.subsystems.Roller_Subsystem;
 import frc.robot.subsystems.Shooter_Subsystem;
 import frc.robot.subsystems.TankDrive_Subsystem;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -23,6 +27,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private TankDrive_Subsystem TankDrive_Subsystem = new TankDrive_Subsystem();
   private Shooter_Subsystem Shooter_Subsystem = new Shooter_Subsystem();
+  private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -50,8 +55,7 @@ public class RobotContainer {
     );
 
     /** On Left Bumper Shoot The Ball */ 
-    
-    controller01.leftBumper().whileTrue(new Shooter_Command(Shooter_Subsystem));
+    controller01.rightBumper().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
   }
 
   /**
