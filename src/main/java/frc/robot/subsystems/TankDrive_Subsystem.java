@@ -14,6 +14,9 @@ import frc.robot.Constants.TankDriveConstants;
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+// Pigeon 2.0
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 public class TankDrive_Subsystem extends SubsystemBase 
 {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -28,8 +31,10 @@ public class TankDrive_Subsystem extends SubsystemBase
 
   private final DifferentialDrive drive = new DifferentialDrive(left_leader, right_leader);
 
+  private Pigeon2 gyroscope;
+
   /** Creates a new TankDrive_Subsystem. */
-  public TankDrive_Subsystem () 
+  public TankDrive_Subsystem (Pigeon2 gyroscope) 
   {
     m_chooser.setDefaultOption("Default Auto", TankDriveConstants.kDefault_Auto);
     m_chooser.addOption("My Auto", TankDriveConstants.kCustom_Auto);
@@ -47,6 +52,8 @@ public class TankDrive_Subsystem extends SubsystemBase
     // INVERSE
     left_follower.setInverted(true);
     right_follower.setInverted(true);
+
+    this.gyroscope = gyroscope;
   }
 
   public void drive (double Y, double X)

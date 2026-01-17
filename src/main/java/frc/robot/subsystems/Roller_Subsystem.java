@@ -43,8 +43,6 @@ public class Roller_Subsystem extends SubsystemBase {
 
   /**
    * Sets the speed of the roller motors.
-   *
-   * @param speed The speed to set the rollers to, from -1.0 to 1.0.
    */
   public void runRoller() {
     TalonSRX_Left.set(1);

@@ -4,18 +4,33 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.*;
 
-import frc.robot.commands.Shoot_SequenceCommand;
+/** TANK DRIVE (SUBSYSTEM) */
+import frc.robot.subsystems.TankDrive_Subsystem;
+
+/** TANK DRIVE (COMMANDS) */
 import frc.robot.commands.TankDrive_Command;
 
+/** SHOOTER SEQUENCE (SUBSYSTEM) */
 import frc.robot.subsystems.Roller_Subsystem;
 import frc.robot.subsystems.Shooter_Subsystem;
-import frc.robot.subsystems.TankDrive_Subsystem;
+
+/** SHOOTER SEQUENCE (COMMANDS) */
+import frc.robot.commands.Shoot_SequenceCommand;
+
+/** INTAKE (SUBSYSTEM) */
+import frc.robot.subsystems.Intake_Subsystem;
+
+/** INTAKE (COMMANDS) */
+import frc.robot.commands.Intake_Command;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+// Pigeon 2.0
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,18 +39,26 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private TankDrive_Subsystem TankDrive_Subsystem = new TankDrive_Subsystem();
+  /** VARIABLES */
+  private final Pigeon2 gyroscope = new Pigeon2(TankDriveConstants.pigeon_ID);
+
+  /** SUBSYSTEMS */
+  private TankDrive_Subsystem TankDrive_Subsystem = new TankDrive_Subsystem(gyroscope);
   private Shooter_Subsystem Shooter_Subsystem = new Shooter_Subsystem();
   private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
+  private Intake_Subsystem Intake_Subsystem = new Intake_Subsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  /** XBOX CONTROLLER */
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    // RESET GYROSCOPE
+    gyroscope.reset();
+    gyroscope.setYaw(0);
   }
 
   /**
@@ -54,8 +77,11 @@ public class RobotContainer {
                                         () -> controller01.getRightX())
     );
 
-    /** On Left Bumper Shoot The Ball */ 
-    controller01.rightBumper().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
+    /** On Left Trigger Intake The Balls */
+    controller01.leftTrigger().whileTrue(new Intake_Command(Intake_Subsystem));
+
+    /** On Right Trigger Shoot The Balls */
+    controller01.rightTrigger().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
   }
 
   /**

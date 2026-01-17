@@ -25,11 +25,13 @@ public final class Constants {
     public static final String kCustom_Auto = "My Auto";
     public String m_autoSelected;
   
-    public static final int left_leader_ID = 1;
-    public static final int left_follower_ID = 2;
+    public static final int left_leader_ID = 0;
+    public static final int left_follower_ID = 1;
 
-    public static final int right_leader_ID = 3;
-    public static final int right_follower_ID = 4;
+    public static final int right_leader_ID = 2;
+    public static final int right_follower_ID = 3;
+
+    public static final int pigeon_ID = 4;
   }
 
   public static class ShooterConstants
