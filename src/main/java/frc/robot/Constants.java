@@ -2,6 +2,16 @@
   * MASTER PROGRAMMERS WORK
   */
 
+/* 
+ * Ports used: 
+ *  0, 1, 2, 3 (TANK)
+ *  4 (Pigeon 2.0)
+ *  5 (Intake)
+ *  6 (Shooter)
+ *  7, 8 (Roller)
+ *  9, 10 (Climb)
+ */
+
 package frc.robot;
 
 public final class Constants {
@@ -12,11 +22,11 @@ public final class Constants {
   /*
    * == TANK DRIVE CONSTANTS == 
    * 
-   *    LEFT LEADER ID = 1
-   *    LEFT FOLLOWER ID = 2
+   *    LEFT LEADER ID    = 0
+   *    LEFT FOLLOWER ID  = 1
    * 
-   *    RIGHT LEADER ID = 3
-   *    RIGHT FOLLOWER ID = 4
+   *    RIGHT LEADER ID   = 2
+   *    RIGHT FOLLOWER ID = 3
    */
 
   public static class TankDriveConstants 
@@ -34,6 +44,11 @@ public final class Constants {
     public static final int pigeon_ID = 4;
   }
 
+  public static class IntakeConstants
+  {
+    public static final int intake_ID = 5;
+  }
+
   public static class ShooterConstants
   {
     public static final int shooter_ID = 6;
@@ -45,8 +60,11 @@ public final class Constants {
     public static final int roller_right_ID = 8;
   }
 
-  public static class IntakeConstants
+  public static class ClimbConstants
   {
-    public static final int intake_ID = 5;
+    public static final double kInchesPerRevolution = 1; // CHANGE TO CONVERTION FACTOR
+
+    public static final int climb_left_ID = 9;
+    public static final int climb_right_ID = 10;
   }
 }

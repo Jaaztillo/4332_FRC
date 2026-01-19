@@ -31,6 +31,7 @@ public class TankDrive_Subsystem extends SubsystemBase
 
   private final DifferentialDrive drive = new DifferentialDrive(left_leader, right_leader);
 
+  @SuppressWarnings("unused") // take it out once I do use gyroscope
   private Pigeon2 gyroscope;
 
   /** Creates a new TankDrive_Subsystem. */
