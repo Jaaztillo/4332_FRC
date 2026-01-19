@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ShooterConstants;
 
-// spark imports (SparkMax, SparkMaxConfig, MotorType, PersistMode, ResetMode)
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase;
@@ -40,6 +39,12 @@ public class Shooter_Subsystem extends SubsystemBase {
   public void stop ()
   {
     shooter_SparkMax.set(0);
+  }
+
+  /** Set rpm method to shoot out with more or less power depending on the distance on the limelight */
+  public void set_rpm ()
+  {
+
   }
 
   @Override
