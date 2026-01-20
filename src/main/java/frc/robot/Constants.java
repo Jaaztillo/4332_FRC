@@ -67,4 +67,15 @@ public final class Constants {
     public static final int climb_left_ID = 9;
     public static final int climb_right_ID = 10;
   }
+
+  public static class LimelightConstants
+  {
+    public static final double kTurnP = 0.03;           // turning strength
+    public static final double kDriveP = 0.8;           // forward/backward strength
+    public static final double MAX_OUTPUT = 0.6;        // max motor output
+    public static final double DESIRED_DISTANCE = 1.0;  // meters from target
+    public static final double SIDE_YAW_OFFSET = 12.0;  // degrees sideways
+
+    public static final String name = "limelight";      // name of limelight
+  }
 }

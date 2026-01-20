@@ -365,6 +365,8 @@ public class LimelightHelpers {
      */
     public static class LimelightResults {
         
+        public final String targetingResults = null;
+
         public String error;
         
         @JsonProperty("pID")

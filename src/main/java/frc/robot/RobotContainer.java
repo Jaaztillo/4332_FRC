@@ -25,6 +25,12 @@ import frc.robot.subsystems.Intake_Subsystem;
 /** INTAKE (COMMANDS) */
 import frc.robot.commands.Intake_Command;
 
+/** LIMELIGHT (SUBSYSTEM) */
+import frc.robot.subsystems.Limelight_Subsystem;
+
+/** ALIGN (COMMAND) */
+import frc.robot.commands.Align_Command;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -47,6 +53,7 @@ public class RobotContainer {
   private Shooter_Subsystem Shooter_Subsystem = new Shooter_Subsystem();
   private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
   private Intake_Subsystem Intake_Subsystem = new Intake_Subsystem();
+  private Limelight_Subsystem Limelight_Subsystem = new Limelight_Subsystem();
 
   /** XBOX CONTROLLER */
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -80,8 +87,11 @@ public class RobotContainer {
     /** On Left Trigger Intake The Balls */
     controller01.leftTrigger().whileTrue(new Intake_Command(Intake_Subsystem));
 
-    /** On Right Trigger Shoot The Balls */
+    /** On Right Trigger Shoot */
     controller01.rightTrigger().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
+
+    /** On Right Bumper Align */
+    controller01.rightBumper().onTrue(new Align_Command(Limelight_Subsystem, TankDrive_Subsystem));
   }
 
   /**

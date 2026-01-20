@@ -62,6 +62,11 @@ public class TankDrive_Subsystem extends SubsystemBase
     drive.arcadeDrive(Y, X);
   }
 
+  public void tank_drive (double left, double right)
+  {
+    drive.tankDrive(left, right);
+  }
+
   public void stop ()
   {
     left_leader.stopMotor();
