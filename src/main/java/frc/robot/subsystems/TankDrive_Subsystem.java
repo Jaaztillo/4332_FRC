@@ -51,7 +51,7 @@ public class TankDrive_Subsystem extends SubsystemBase
     left_leader.setNeutralMode(NeutralMode.Brake);
 
     // INVERSE
-    left_follower.setInverted(true);
+    right_leader.setInverted(true);
     right_follower.setInverted(true);
 
     this.gyroscope = gyroscope;
@@ -59,12 +59,12 @@ public class TankDrive_Subsystem extends SubsystemBase
 
   public void drive (double Y, double X)
   {
-    drive.arcadeDrive(Y, X);
+    drive.arcadeDrive(-Y, -X);
   }
 
   public void tank_drive (double left, double right)
   {
-    drive.tankDrive(left, right);
+    drive.tankDrive(-left, -right);
   }
 
   public void stop ()
