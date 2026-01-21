@@ -80,13 +80,32 @@ public class Limelight_Subsystem extends SubsystemBase {
     double drive = (z - LimelightConstants.DESIRED_DISTANCE)
                   * LimelightConstants.kDriveP;
 
-    double left = clamp(drive + turn);
-    double right = clamp(drive - turn);
+    double leftRaw  = drive + turn;
+    double rightRaw = drive - turn;
 
-    if (Math.abs(tx) < LimelightConstants.TX_TOLERANCE &&
-        Math.abs(z - LimelightConstants.DESIRED_DISTANCE) < LimelightConstants.Z_TOLERANCE) {
-        return new double[]{0, 0};
+    /*
+     * EXAMPLE: 
+     *  abs(-1.431) = 1.431
+     *  abs(-1.449) = 1.449
+     *  maxMagnitude = 1.449 
+     *  
+     *  Since maxMagnitude > MAX_OUTPUT (1.449 > 0.6), we scale:
+     *      scale = MAX_OUTPUT / maxMagnitude
+     *      0.6 / 1.449 ≈ 0.4141 (Scale)
+     *  
+     *  NEW VALUES
+     *      leftRaw * scale  | -1.431 * 0.4141 | leftRaw  = -0.593
+     *      rightRaw * scale | -1.449 * 0.4141 | rightRaw = -0.600
+     */
+
+    double maxMagnitude = Math.max(Math.abs(leftRaw), Math.abs(rightRaw));
+    if (maxMagnitude > LimelightConstants.MAX_OUTPUT) {
+        leftRaw  *= LimelightConstants.MAX_OUTPUT / maxMagnitude;
+        rightRaw *= LimelightConstants.MAX_OUTPUT / maxMagnitude;
     }
+
+    double left = leftRaw;
+    double right = rightRaw;
 
     return new double[]{left, right};
   }
@@ -126,12 +145,6 @@ public class Limelight_Subsystem extends SubsystemBase {
     }
 
     return -1;
-  }
-
-  private double clamp(double value) {
-    return Math.max(
-        -LimelightConstants.MAX_OUTPUT,
-        Math.min(LimelightConstants.MAX_OUTPUT, value));
   }
 
   @Override
