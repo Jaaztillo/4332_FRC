@@ -91,7 +91,7 @@ public class RobotContainer {
     controller01.rightTrigger().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
 
     /** On Right Bumper Align */
-    controller01.rightBumper().onTrue(new Align_Command(Limelight_Subsystem, TankDrive_Subsystem));
+    controller01.rightBumper().onTrue(new Align_Command(Limelight_Subsystem, TankDrive_Subsystem, controller01));
   }
 
   /**

@@ -4,12 +4,12 @@
 
 /* 
  * Ports used: 
- *  0, 1, 2, 3 (TANK)
- *  4 (Pigeon 2.0)
- *  5 (Intake)
- *  6 (Shooter)
- *  7, 8 (Roller)
- *  9, 10 (Climb)
+ *  1, 2, 3, 4 (TANK)
+ *  5 (Pigeon 2.0)
+ *  6 (Intake)
+ *  7 (Shooter)
+ *  8, 9 (Roller)
+ *  10, 11 (Climb)
  */
 
 package frc.robot;
@@ -70,12 +70,19 @@ public final class Constants {
 
   public static class LimelightConstants
   {
-    public static final double kTurnP = 0.03;           // turning strength
-    public static final double kDriveP = 0.8;           // forward/backward strength
-    public static final double MAX_OUTPUT = 0.6;        // max motor output
-    public static final double DESIRED_DISTANCE = 2.0;  // meters from target
-    public static final double SIDE_YAW_OFFSET = 30.0;  // degrees sideways
+    public static final double kTurnP = 0.03;             // turning strength
+    public static final double kDriveP = 0.8;             // forward/backward strength
+    public static final double MAX_OUTPUT = 0.6;          // max motor output
+    public static final double DESIRED_DISTANCE = 2.0;    // meters from target
+    public static final double SIDE_YAW_OFFSET = 30.0;    // degrees sideways
 
-    public static final String name = "limelight";      // name of limelight
+    public static final double TX_TOLERANCE = 2.0;        // TOLERANCE FOR X AXIS
+    public static final double Z_TOLERANCE = 0.08;         // TOLAREANCE FOR DISTANCE
+
+    public static final String name = "limelight";        // name of limelight
+
+
+    public static final int[] APRILTAG_RIGHT  = {8, 24};  // APRIL TAGS FOR ROBOT TO TURN RIGHT
+    public static final int[] APRILTAG_LEFT   = {11, 27}; // APRIL TAGS FOR ROBOT TO TURN LEFT
   }
 }
