@@ -26,6 +26,9 @@ public class Limelight_Subsystem extends SubsystemBase {
   private boolean hasZInit = false;
   private static final double Z_ALPHA = 0.2; // lower = smoother
 
+  private double left_power = 0.0;
+  private double right_power = 0.0;
+
   public Limelight_Subsystem() {}
 
   // =============================
@@ -51,11 +54,11 @@ public class Limelight_Subsystem extends SubsystemBase {
   // TANK OUTPUTS
   // =============================
   public double get_left_output() {
-    return calculateOutputs()[0];
+    return left_power;
   }
 
   public double get_right_output() {
-    return calculateOutputs()[1];
+    return right_power;
   }
 
   // =============================
@@ -69,11 +72,14 @@ public class Limelight_Subsystem extends SubsystemBase {
     double tx = LimelightHelpers.getTX(LimelightConstants.name);
     double z = getFilteredDistanceZ();
 
+    /** Dynamic side_yaw_offset based on distance */
+    double side_yaw_offset = Math.toDegrees(Math.atan2(LimelightConstants.X_OFFSET, z));
+    
     // Apply yaw offset
     if (has_AprilTag_Left()) {
-      tx -= LimelightConstants.SIDE_YAW_OFFSET;
+      tx -= side_yaw_offset;
     } else if (has_AprilTag_Right()) {
-      tx += LimelightConstants.SIDE_YAW_OFFSET;
+      tx += side_yaw_offset;
     }
 
     double turn = tx * LimelightConstants.kTurnP;
@@ -149,6 +155,11 @@ public class Limelight_Subsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    double[] output = calculateOutputs();
+
+    left_power = output[0];
+    right_power = output[1];
+
     SmartDashboard.putBoolean("Has AprilTag", hasValidTag());
     SmartDashboard.putNumber("Debounced Tag ID", getDebouncedTagID());
     SmartDashboard.putNumber("Filtered Z", filteredZ);

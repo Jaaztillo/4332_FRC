@@ -74,10 +74,10 @@ public final class Constants {
     public static final double kDriveP = 0.8;             // forward/backward strength
     public static final double MAX_OUTPUT = 0.6;          // max motor output
     public static final double DESIRED_DISTANCE = 2.0;    // meters from target
-    public static final double SIDE_YAW_OFFSET = 15.0;    // degrees sideways
 
     public static final double TX_TOLERANCE = 2.0;        // TOLERANCE FOR X AXIS
     public static final double Z_TOLERANCE = 0.08;        // TOLAREANCE FOR DISTANCE
+    public static final double X_OFFSET = 0.23114;        // OFFSET FROM APRIL TAG TO CENTER OF TOWER
 
     public static final String name = "limelight";        // name of limelight
 
