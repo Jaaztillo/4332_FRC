@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Robot;
 
 public class Limelight_Subsystem extends SubsystemBase {
   // =============================
@@ -28,6 +29,7 @@ public class Limelight_Subsystem extends SubsystemBase {
 
   private double left_power = 0.0;
   private double right_power = 0.0;
+  private double offset_tx = 0.0;
 
   public Limelight_Subsystem() {}
 
@@ -61,25 +63,54 @@ public class Limelight_Subsystem extends SubsystemBase {
     return right_power;
   }
 
+  public double get_offsetTX_output() {
+    return offset_tx;
+  }
+
   // =============================
   // CORE LOGIC
   // =============================
   private double[] calculateOutputs() {
     if (!hasValidTag()) {
-      return new double[]{0, 0};
+      return new double[]{0, 0, 0};
     }
 
     double tx = LimelightHelpers.getTX(LimelightConstants.name);
     double z = getFilteredDistanceZ();
 
-    /** Dynamic side_yaw_offset based on distance */
-    double side_yaw_offset = Math.toDegrees(Math.atan2(LimelightConstants.X_OFFSET, z));
+    /* Get the angle for the robot to look at the tower and not at the tag itself
+     *  angle = arctan(opposite / adjacent)
+     *  angle = arctan(X_OFFSET, z)
+     *  
+     *  Convert angle to degrees because Math.atan2 returns radians while tx measures in degrees
+     * 
+     *        ● Tower Center
+     *        |\
+     *        | \
+     *      z |  \
+     *        |   \
+     *        |θ   \
+     *  Robot +-----● AprilTag
+     *        X_OFFSET
+     * 
+     *  Explanation:
+     *    Tower_Center to the AprilTag have a offset in the game
+     *    z is the adjacent to keep the angle ratio to the distance
+     * 
+     *    if z was not in the equation the angle could be too big or too little
+     *    remember tan(θ) = opposite / adjacent
+     *      Opposite is how far sideways you must move to hit the tower corner
+     *      Adjacent is how far along the robot's current sight line the tag is
+     *    
+     */
+
+    double angle = Math.toDegrees(Math.atan2(LimelightConstants.X_OFFSET, z));
     
     // Apply yaw offset
     if (has_AprilTag_Left()) {
-      tx -= side_yaw_offset;
+      tx -= angle;
     } else if (has_AprilTag_Right()) {
-      tx += side_yaw_offset;
+      tx += angle;
     }
 
     double turn = tx * LimelightConstants.kTurnP;
@@ -113,7 +144,7 @@ public class Limelight_Subsystem extends SubsystemBase {
     double left = leftRaw;
     double right = rightRaw;
 
-    return new double[]{left, right};
+    return new double[]{left, right, tx};
   }
 
   // =============================
@@ -159,6 +190,7 @@ public class Limelight_Subsystem extends SubsystemBase {
 
     left_power = output[0];
     right_power = output[1];
+    offset_tx = output[2];
 
     SmartDashboard.putBoolean("Has AprilTag", hasValidTag());
     SmartDashboard.putNumber("Debounced Tag ID", getDebouncedTagID());

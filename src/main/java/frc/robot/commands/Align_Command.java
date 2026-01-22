@@ -4,12 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.Limelight_Subsystem;
 import frc.robot.subsystems.TankDrive_Subsystem;
 
 import frc.robot.Constants.LimelightConstants;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,6 +19,8 @@ public class Align_Command extends Command {
   private Limelight_Subsystem limelight_Subsystem;
   private TankDrive_Subsystem tankDrive_Subsystem;
   private final CommandXboxController controller;
+
+  private final Timer timer = new Timer();
 
   private boolean rumbled = false;
 
@@ -53,7 +55,7 @@ public class Align_Command extends Command {
     boolean aligned =
         limelight_Subsystem.hasValidTag()
         && Math.abs(
-            LimelightHelpers.getTX(LimelightConstants.name)
+            limelight_Subsystem.get_offsetTX_output()
            ) < LimelightConstants.TX_TOLERANCE
         && Math.abs(
             limelight_Subsystem.getFilteredDistanceZ()
@@ -64,6 +66,7 @@ public class Align_Command extends Command {
     if (aligned && !rumbled) {
       controller.setRumble(RumbleType.kBothRumble, 1.0);
       rumbled = true;
+      timer.start();
     }
   }
 
@@ -80,6 +83,7 @@ public class Align_Command extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return rumbled;
+    /** RUMBLE CONTROLLER FOR 0.5 SECONDS THEN FINISH */
+    return rumbled && timer.hasElapsed(0.5);
   }
 }

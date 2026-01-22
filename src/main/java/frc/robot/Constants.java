@@ -81,7 +81,6 @@ public final class Constants {
 
     public static final String name = "limelight";        // name of limelight
 
-
     public static final int[] APRILTAG_RIGHT  = {8, 24};  // APRIL TAGS FOR ROBOT TO TURN RIGHT
     public static final int[] APRILTAG_LEFT   = {11, 27}; // APRIL TAGS FOR ROBOT TO TURN LEFT
   }
