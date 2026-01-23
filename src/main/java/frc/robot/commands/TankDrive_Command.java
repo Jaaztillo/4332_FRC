@@ -36,10 +36,13 @@ public class TankDrive_Command extends Command {
   public void execute() 
   {
     // Deadband it so that the robot won't nudge even if the driver let's go of the joystick
-    double left_percent_deadband = MathUtil.applyDeadband(left_percent.getAsDouble(), 0.07);
-    double right_percent_deadband = MathUtil.applyDeadband(right_percent.getAsDouble(), 0.07);
+    double foward_percent = tank_drive.applyInversion(left_percent.getAsDouble());
+    double rotation_percent = tank_drive.applyInversion(right_percent.getAsDouble());
 
-    tank_drive.drive(left_percent_deadband, right_percent_deadband);
+    double foward_percent_deadband = MathUtil.applyDeadband(foward_percent, 0.07);
+    double rotation_percent_deadband = MathUtil.applyDeadband(rotation_percent, 0.07);
+
+    tank_drive.drive(foward_percent_deadband, rotation_percent_deadband);
   }
 
   // Called once the command ends or is interrupted.

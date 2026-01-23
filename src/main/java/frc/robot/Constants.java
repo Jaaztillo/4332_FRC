@@ -34,6 +34,8 @@ public final class Constants {
     public static final String kDefault_Auto = "Default";
     public static final String kCustom_Auto = "My Auto";
     public String m_autoSelected;
+
+    public static final int state = 0;
   
     public static final int left_leader_ID = 1;
     public static final int left_follower_ID = 2;

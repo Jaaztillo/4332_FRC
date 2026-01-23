@@ -31,7 +31,8 @@ public class TankDrive_Subsystem extends SubsystemBase
 
   private final DifferentialDrive drive = new DifferentialDrive(left_leader, right_leader);
 
-  @SuppressWarnings("unused") // take it out once I do use gyroscope
+  private boolean inverted = false;
+
   private Pigeon2 gyroscope;
 
   /** Creates a new TankDrive_Subsystem. */
@@ -67,6 +68,32 @@ public class TankDrive_Subsystem extends SubsystemBase
     drive.tankDrive(-left, -right);
   }
 
+  public void toggleInverted()
+  {
+    inverted = !inverted;
+  }
+
+  public double applyInversion(double value)
+  {
+    return inverted ? -value : value;
+  }
+
+  public boolean rotate_robot ()
+  {
+    // ROTATE 180 DEGREES USING PIGEON 2.0 GYRO
+    double current_yaw = gyroscope.getYaw().getValueAsDouble();
+    double target_yaw = current_yaw + 180.0;
+
+    if (Math.abs(target_yaw - current_yaw) > 2.0) {
+        // Basic logic: apply power until the yaw reaches the target
+        drive.tankDrive(1, -1); 
+        return false;
+    } else {
+        stop();
+        return true;
+    }
+  }
+
   public void stop ()
   {
     left_leader.stopMotor();
@@ -81,6 +108,11 @@ public class TankDrive_Subsystem extends SubsystemBase
   public double get_percent_out_right ()
   {
     return right_leader.get();
+  }
+
+  /** Get the current heading from 0 to 360 */
+  public double getHeading() {
+    return gyroscope.getYaw().getValueAsDouble();
   }
 
   @Override

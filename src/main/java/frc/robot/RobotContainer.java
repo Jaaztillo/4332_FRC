@@ -11,7 +11,7 @@ import frc.robot.subsystems.TankDrive_Subsystem;
 
 /** TANK DRIVE (COMMANDS) */
 import frc.robot.commands.TankDrive_Command;
-
+import frc.robot.commands.TankDrive_Inverse_Command;
 /** SHOOTER SEQUENCE (SUBSYSTEM) */
 import frc.robot.subsystems.Roller_Subsystem;
 import frc.robot.subsystems.Shooter_Subsystem;
@@ -32,6 +32,7 @@ import frc.robot.subsystems.Limelight_Subsystem;
 import frc.robot.commands.Align_Command;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -106,6 +107,10 @@ public class RobotContainer {
     
     /** B Button (Climb Down The First Rung) */
     controller01.b().onTrue(new Climb_Down(Climb_Subsystem));
+
+    /** X Button (Rotate Robot 360 and Invert Controlls) */
+    
+    controller01.x().onTrue(new TankDrive_Inverse_Command(TankDrive_Subsystem));
   }
 
   /**
