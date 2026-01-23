@@ -4,16 +4,22 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ClimbConstants;
 
 // spark imports (SparkMax, SparkMaxConfig, MotorType, PersistMode, ResetMode)
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 
 public class Climb_Subsystem extends SubsystemBase {
@@ -21,30 +27,51 @@ public class Climb_Subsystem extends SubsystemBase {
   private final SparkMax climb_follower = new SparkMax(ClimbConstants.climb_right_ID, MotorType.kBrushless);
 
   private final RelativeEncoder primary_encoder = climb_primary.getEncoder();
+  private final SparkClosedLoopController climb_controller = climb_primary.getClosedLoopController();
 
-  private final SparkMaxConfig climb_config = new SparkMaxConfig();
+  private final SparkMaxConfig primary_config  = new SparkMaxConfig();
+  private final SparkMaxConfig follower_config  = new SparkMaxConfig();
 
   /** Creates a new Climb_Subsystem. */
-  @SuppressWarnings({ "removal", "deprecation" })
+  @SuppressWarnings({"removal"})
   public Climb_Subsystem() 
   {
     // Basic shooter configuration
-    climb_config.smartCurrentLimit(60);
-    climb_config.voltageCompensation(12);
+    primary_config
+      .smartCurrentLimit(60)
+      .voltageCompensation(12)
+      .idleMode(IdleMode.kBrake);
 
-    /*
-    * climb_config.encoder
-    *     .positionConversionFactor(ClimbConstants.kInchesPerRevolution)
-    *     .velocityConversionFactor(ClimbConstants.kInchesPerRevolution / 60.0); // For Inches/Sec
-    */
+    // Encoder Conversion (Inches instead of rotations)
+    primary_config.encoder
+        .positionConversionFactor(ClimbConstants.kPositionFactor)
+        .velocityConversionFactor(ClimbConstants.kPositionFactor / 60.0);
 
-    // setting leftFollower to follow leftLeader
-    climb_config.follow(climb_primary);
-    climb_follower.configure(climb_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Soft Limits (Crucial safety to prevent over-extension)
+    primary_config.softLimit
+        .forwardSoftLimitEnabled(true)
+        .forwardSoftLimit(20.0) // Max height in inches
+        .reverseSoftLimitEnabled(true)
+        .reverseSoftLimit(0.0); // Min height in inches
+      
+    // PID Coefficients
+    primary_config.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(ClimbConstants.kP)
+        .i(ClimbConstants.kI)
+        .d(ClimbConstants.kD)
+        .allowedClosedLoopError(0.5, ClosedLoopSlot.kSlot0)
+        .outputRange(-1, 1);
 
-    climb_config.disableFollowerMode();
+    // Configure follower
+    follower_config
+        .idleMode(IdleMode.kBrake)
+        .follow(climb_primary, true);
+    
+    climb_primary.configure(primary_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    climb_follower.configure(follower_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    climb_follower.setInverted(true);
+    primary_encoder.setPosition(0);
   }
 
   /*
@@ -58,25 +85,39 @@ public class Climb_Subsystem extends SubsystemBase {
   /** CLIMB TO LEVEL 1 */
   public void climb_level_1 ()
   {
-
+    setClimbPosition(ClimbConstants.First_Rung_Distance);
   }
 
   public void climb_level_2 ()
   {
-
+    setClimbPosition(ClimbConstants.Second_Rung_Distance);
   }
 
   public void climb_level_3 ()
   {
-
+    setClimbPosition(ClimbConstants.Third_Rung_Distance);
   }
 
   public void climb_down_level_1 ()
   {
+    setClimbPosition(ClimbConstants.First_Rung_Distance + 2);
+  }
 
+  public void climb_self ()
+  {
+    setClimbPosition(ClimbConstants.Robot_Back_Distance);
   }
 
   /** UTILS */
+  public void setClimbPosition(double inches) {
+    climb_controller.setSetpoint(inches, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  }
+
+  public boolean atSetPoint ()
+  {
+    return climb_controller.isAtSetpoint();
+  }
+  
   public double get_inches ()
   {
     return primary_encoder.getPosition();
@@ -85,5 +126,6 @@ public class Climb_Subsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Climb Inches", get_inches());
   }
 }

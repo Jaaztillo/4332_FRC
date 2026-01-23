@@ -35,6 +35,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+/** CLIMB (SUBSYSTEM)*/
+import frc.robot.subsystems.Climb_Subsystem;
+
+/** CLIMB (COMMAND) */
+import frc.robot.commands.Climb_Commands.Climb_Command;
+import frc.robot.commands.Climb_Commands.Climb_Down;
+
 // Pigeon 2.0
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -54,6 +61,7 @@ public class RobotContainer {
   private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
   private Intake_Subsystem Intake_Subsystem = new Intake_Subsystem();
   private Limelight_Subsystem Limelight_Subsystem = new Limelight_Subsystem();
+  private Climb_Subsystem Climb_Subsystem = new Climb_Subsystem();
 
   /** XBOX CONTROLLER */
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -92,6 +100,12 @@ public class RobotContainer {
 
     /** On Right Bumper Align */
     controller01.rightBumper().onTrue(new Align_Command(Limelight_Subsystem, TankDrive_Subsystem, controller01));
+
+    /** A Button (On-Click Go Up the Next Level) */
+    controller01.a().onTrue(new Climb_Command(Climb_Subsystem));
+    
+    /** B Button (Climb Down The First Rung) */
+    controller01.b().onTrue(new Climb_Down(Climb_Subsystem));
   }
 
   /**

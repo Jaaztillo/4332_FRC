@@ -62,7 +62,18 @@ public final class Constants {
 
   public static class ClimbConstants
   {
-    public static final double kInchesPerRevolution = 1; // CHANGE TO CONVERTION FACTOR
+    public static final double kInchesPerRevolution = 1;  // CHANGE TO CONVERTION FACTOR
+    public static final double kP = 0.1;                  // 0.1 -> 1
+    public static final double kI = 0;                    // 0
+    public static final double kD = 0.01;                 // 0.01 -> 0.1
+
+    public static final double kPositionFactor = 0.2;     // If 10 inches = 50 rotations, factor is 0.2
+
+    public static final double First_Rung_Distance = 10;
+    public static final double Second_Rung_Distance = 5;
+    public static final double Third_Rung_Distance = 5;
+
+    public static final double Robot_Back_Distance = 5;
 
     public static final int climb_left_ID = 10;
     public static final int climb_right_ID = 11;
