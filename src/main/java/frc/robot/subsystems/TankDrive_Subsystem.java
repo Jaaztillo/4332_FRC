@@ -14,9 +14,6 @@ import frc.robot.Constants.TankDriveConstants;
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-// Pigeon 2.0
-import com.ctre.phoenix6.hardware.Pigeon2;
-
 public class TankDrive_Subsystem extends SubsystemBase 
 {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -33,10 +30,8 @@ public class TankDrive_Subsystem extends SubsystemBase
 
   private boolean inverted = false;
 
-  private Pigeon2 gyroscope;
-
   /** Creates a new TankDrive_Subsystem. */
-  public TankDrive_Subsystem (Pigeon2 gyroscope) 
+  public TankDrive_Subsystem () 
   {
     m_chooser.setDefaultOption("Default Auto", TankDriveConstants.kDefault_Auto);
     m_chooser.addOption("My Auto", TankDriveConstants.kCustom_Auto);
@@ -54,8 +49,6 @@ public class TankDrive_Subsystem extends SubsystemBase
     // INVERSE
     right_leader.setInverted(true);
     right_follower.setInverted(true);
-
-    this.gyroscope = gyroscope;
   }
 
   public void drive (double Y, double X)
@@ -63,7 +56,7 @@ public class TankDrive_Subsystem extends SubsystemBase
     drive.arcadeDrive(-Y, -X);
   }
 
-  public void tank_drive (double left, double right)
+  public void set (double left, double right)
   {
     drive.tankDrive(-left, -right);
   }
@@ -76,22 +69,6 @@ public class TankDrive_Subsystem extends SubsystemBase
   public double applyInversion(double value)
   {
     return inverted ? -value : value;
-  }
-
-  public boolean rotate_robot ()
-  {
-    // ROTATE 180 DEGREES USING PIGEON 2.0 GYRO
-    double current_yaw = gyroscope.getYaw().getValueAsDouble();
-    double target_yaw = current_yaw + 180.0;
-
-    if (Math.abs(target_yaw - current_yaw) > 2.0) {
-        // Basic logic: apply power until the yaw reaches the target
-        drive.tankDrive(1, -1); 
-        return false;
-    } else {
-        stop();
-        return true;
-    }
   }
 
   public void stop ()
@@ -108,11 +85,6 @@ public class TankDrive_Subsystem extends SubsystemBase
   public double get_percent_out_right ()
   {
     return right_leader.get();
-  }
-
-  /** Get the current heading from 0 to 360 */
-  public double getHeading() {
-    return gyroscope.getYaw().getValueAsDouble();
   }
 
   @Override

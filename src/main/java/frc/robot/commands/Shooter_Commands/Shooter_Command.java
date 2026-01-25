@@ -1,23 +1,23 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package frc.robot.commands;
+/*
+  * MASTER PROGRAMMERS WORK
+  */
+  
+package frc.robot.commands.Shooter_Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.subsystems.Intake_Subsystem;
+import frc.robot.subsystems.Shooter_Subsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Intake_Command extends Command {
-  private Intake_Subsystem Intake_Subsystem;
+public class Shooter_Command extends Command {
+  private Shooter_Subsystem shooter_subsystem;
 
-  /** Creates a new Intake_Command. */
-  public Intake_Command(Intake_Subsystem Intake_Subsystem) 
-  {
-    this.Intake_Subsystem = Intake_Subsystem;
+  /** Creates a new Shooter_Command. */
+  public Shooter_Command(Shooter_Subsystem shooter_subsystem) {
+    // Use addRequirements() here to declare subsystem dependencies.
+    this.shooter_subsystem = shooter_subsystem;
 
-    addRequirements(this.Intake_Subsystem);
+    addRequirements(this.shooter_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -28,14 +28,14 @@ public class Intake_Command extends Command {
   @Override
   public void execute() 
   {
-    Intake_Subsystem.intake();
+    shooter_subsystem.shoot();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) 
   {
-    Intake_Subsystem.stop();
+    shooter_subsystem.stop();
   }
 
   // Returns true when the command should end.
