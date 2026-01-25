@@ -4,34 +4,36 @@
 
 package frc.robot;
 
-import frc.robot.Constants.*;
-
-/** TANK DRIVE (SUBSYSTEM) */
-import frc.robot.subsystems.TankDrive_Subsystem;
-import frc.robot.commands.Align_Commands.Align_Shoot_Command;
-/** SHOOTER SEQUENCE (SUBSYSTEM) */
-import frc.robot.subsystems.Roller_Subsystem;
-import frc.robot.subsystems.Shooter_Subsystem;
-/** INTAKE (SUBSYSTEM) */
-import frc.robot.subsystems.Intake_Subsystem;
-/** PIGEON 2.0 (SUBSYSTEM)  */
-import frc.robot.subsystems.Pigeon_Subsystem;
-
-/** LIMELIGHT (SUBSYSTEM) */
-import frc.robot.subsystems.Limelight_Subsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-/** CLIMB (SUBSYSTEM)*/
+// == CONSTANTS == \\
+import frc.robot.Constants.*;
+
+// == SUBSYSTEMS == \\
+import frc.robot.subsystems.TankDrive_Subsystem;
+
+import frc.robot.subsystems.Roller_Subsystem;
+import frc.robot.subsystems.Shooter_Subsystem;
+import frc.robot.subsystems.Intake_Subsystem;
+
 import frc.robot.subsystems.Climb_Subsystem;
 
-/** CLIMB (COMMAND) */
+import frc.robot.subsystems.Pigeon_Subsystem;
+import frc.robot.subsystems.Limelight_Subsystem;
+
+// == COMMANDS == \\
+import frc.robot.commands.Align_Commands.Align_Climb_Command;
+import frc.robot.commands.Align_Commands.Align_Shoot_Command;
+
 import frc.robot.commands.Climb_Commands.Climb_Command;
 import frc.robot.commands.Climb_Commands.Climb_Down;
-import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Command;
+
 import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Inverse_Command;
-import frc.robot.commands.Intake_Commands.Intake_Command;
+import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Command;
+
 import frc.robot.commands.Shooter_Commands.Shoot_SequenceCommand;
+import frc.robot.commands.Intake_Commands.Intake_Command;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -44,12 +46,15 @@ public class RobotContainer {
 
   /** SUBSYSTEMS */
   private TankDrive_Subsystem TankDrive_Subsystem = new TankDrive_Subsystem();
+
   private Shooter_Subsystem Shooter_Subsystem = new Shooter_Subsystem();
   private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
   private Intake_Subsystem Intake_Subsystem = new Intake_Subsystem();
-  private Pigeon_Subsystem Pigeon_Subsystem = new Pigeon_Subsystem();
-  private Limelight_Subsystem Limelight_Subsystem = new Limelight_Subsystem();
+  
   private Climb_Subsystem Climb_Subsystem = new Climb_Subsystem();
+
+  private Limelight_Subsystem Limelight_Subsystem = new Limelight_Subsystem();
+  private Pigeon_Subsystem Pigeon_Subsystem = new Pigeon_Subsystem();
 
   /** XBOX CONTROLLER */
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -80,7 +85,7 @@ public class RobotContainer {
      * D-PAD LEFT     : CLIMBER ALIGN
      * BUTTON X       : ROTATE ROBOT 180 && INVERSE CONTROLS
     */
-    
+
     TankDrive_Subsystem.setDefaultCommand(new TankDrive_Command(TankDrive_Subsystem,
                                         () -> controller01.getLeftY(), 
                                         () -> controller01.getRightX())
@@ -93,7 +98,7 @@ public class RobotContainer {
     controller01.povDown().onTrue(new Climb_Down(Climb_Subsystem));
 
     controller01.povRight().onTrue(new Align_Shoot_Command(Limelight_Subsystem, TankDrive_Subsystem, Pigeon_Subsystem, controller01));
-    controller01.povLeft().onTrue(new Align_Shoot_Command(Limelight_Subsystem, TankDrive_Subsystem, Pigeon_Subsystem, controller01));
+    controller01.povLeft().onTrue(new Align_Climb_Command(Limelight_Subsystem, TankDrive_Subsystem, Pigeon_Subsystem, controller01));
 
     controller01.x().onTrue(new TankDrive_Inverse_Command(TankDrive_Subsystem, Pigeon_Subsystem));
   }
