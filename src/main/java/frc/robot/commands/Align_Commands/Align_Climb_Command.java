@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
-
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.subsystems.Limelight_Subsystem;
