@@ -47,6 +47,11 @@ public final class Constants {
   public static class ShooterConstants
   {
     public static final int shooter_ID = 7;
+
+    public static final double kP = 0.0001;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0.0002;
   }
 
   public static class RollerConstants

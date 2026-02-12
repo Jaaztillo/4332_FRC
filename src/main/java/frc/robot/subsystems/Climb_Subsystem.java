@@ -99,7 +99,7 @@ public class Climb_Subsystem extends SubsystemBase {
 
   public void climb_down_level_1 ()
   {
-    setClimbPosition(ClimbConstants.First_Rung_Distance + 2);
+    setClimbPosition(ClimbConstants.First_Rung_Distance + 5);
   }
 
   public void climb_self ()
