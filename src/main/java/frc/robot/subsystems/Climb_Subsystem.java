@@ -47,11 +47,17 @@ public class Climb_Subsystem extends SubsystemBase {
         .velocityConversionFactor(ClimbConstants.kPositionFactor / 60.0);
 
     // Soft Limits (Crucial safety to prevent over-extension)
-    primary_config.softLimit
+    /*
+     * primary_config.softLimit
         .forwardSoftLimitEnabled(true)
         .forwardSoftLimit(20.0) // Max height in inches
         .reverseSoftLimitEnabled(true)
         .reverseSoftLimit(0.0); // Min height in inches
+     */
+
+    primary_config.softLimit
+        .forwardSoftLimit(25.0) // Give it more breathing room
+        .reverseSoftLimit(-2.0); // Allow it to go slightly below 0
       
     // PID Coefficients
     primary_config.closedLoop
@@ -66,6 +72,9 @@ public class Climb_Subsystem extends SubsystemBase {
     follower_config
         .idleMode(IdleMode.kBrake)
         .follow(climb_primary, true);
+
+    primary_config.signals.primaryEncoderPositionPeriodMs(20);
+    primary_config.signals.primaryEncoderVelocityPeriodMs(20);
     
     climb_primary.configure(primary_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     climb_follower.configure(follower_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -120,6 +129,11 @@ public class Climb_Subsystem extends SubsystemBase {
   public double get_inches ()
   {
     return primary_encoder.getPosition();
+  }
+
+  // For testing
+  public void resetClimbEncoder() {
+    primary_encoder.setPosition(0);
   }
 
   @Override

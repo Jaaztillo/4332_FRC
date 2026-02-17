@@ -29,6 +29,7 @@ import frc.robot.commands.Align_Commands.Align_Shoot_Command;
 
 import frc.robot.commands.Climb_Commands.Climb_Command;
 import frc.robot.commands.Climb_Commands.Climb_Down;
+import frc.robot.commands.Climb_Commands.Reset;
 
 import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Inverse_Command;
 import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Command;
@@ -113,7 +114,8 @@ public class RobotContainer {
     //controller01.rightTrigger().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
 
     // Climb Up   (Levels : 3)
-    controller01.povUp().onTrue(new Climb_Command(Climb_Subsystem));
+    controller01.y().onTrue(new Climb_Command(Climb_Subsystem));
+    controller01.a().onTrue(new Reset(Climb_Subsystem));
 
     // Climb Down (Levels : 1)
     controller01.povDown().onTrue(new Climb_Down(Climb_Subsystem));

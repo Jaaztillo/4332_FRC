@@ -63,9 +63,9 @@ public final class Constants {
   public static class ClimbConstants
   {
     public static final double kInchesPerRevolution = 1;  // CHANGE TO CONVERTION FACTOR
-    public static final double kP = 0.1;                  // 0.1 -> 1
+    public static final double kP = 0.8;                  // 0.5 -> 1
     public static final double kI = 0;                    // 0
-    public static final double kD = 0.01;                 // 0.01 -> 0.1
+    public static final double kD = 0.05;                 // 0.05 -> 0.1
 
     public static final double kPositionFactor = 0.2;     // If 10 inches = 50 rotations, factor is 0.2
 
