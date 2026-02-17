@@ -39,7 +39,7 @@ public class Climb_Subsystem extends SubsystemBase {
     primary_config
       .smartCurrentLimit(60)
       .voltageCompensation(12)
-      .idleMode(IdleMode.kBrake);
+      .idleMode(IdleMode.kCoast);
 
     // Encoder Conversion (Inches instead of rotations)
     primary_config.encoder
