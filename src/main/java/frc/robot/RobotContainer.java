@@ -5,74 +5,60 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-// == CONSTANTS == \\
+// Constants
 import frc.robot.Constants.*;
 
-// == SUBSYSTEMS == \\
-import frc.robot.subsystems.TankDrive_Subsystem;
+// Subsystems
+import frc.robot.subsystems.TankDriveSubsystem;
+import frc.robot.commands.DifferentialDriveCommands.AlignClimberCommand;
+import frc.robot.commands.DifferentialDriveCommands.AlignDriveCommand;
 
-//import frc.robot.subsystems.Roller_Subsystem;
-import frc.robot.subsystems.Shooter_Subsystem;
-import frc.robot.subsystems.Intake_Subsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.RollerSubsystem;
 
-import frc.robot.subsystems.Climb_Subsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
-import frc.robot.subsystems.Pigeon_Subsystem;
-import frc.robot.subsystems.Limelight_Subsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ExtensionSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 
-// == COMMANDS == \\
-//import frc.robot.commands.Align_Commands.Align_Climb_Command;
-import frc.robot.commands.Align_Commands.Align_Shoot_Command;
+// Commands
+import frc.robot.commands.DifferentialDriveCommands.TankDriveCommand;
+import frc.robot.commands.ShooterCommands.AlignShooterCommand;
+import frc.robot.commands.ShooterCommands.ShooterParallelCommand;
+import frc.robot.commands.IntakeCommands.ExtendCommand;
+import frc.robot.commands.IntakeCommands.IntakeCommand;
 
-import frc.robot.commands.Climb_Commands.Climb_Command;
-import frc.robot.commands.Climb_Commands.Climb_Down;
-import frc.robot.commands.Climb_Commands.Reset;
-
-import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Inverse_Command;
-import frc.robot.commands.DifferentialDrive__Commands.TankDrive_Command;
-
-//import frc.robot.commands.Shooter_Commands.Shoot_SequenceCommand;
-import frc.robot.commands.Shooter_Commands.Shooter_Command;
-import frc.robot.commands.Intake_Commands.Intake_Command;
+import frc.robot.commands.ClimbCommands.ClimbFoward;
+import frc.robot.commands.ClimbCommands.ClimbReverse;
+import frc.robot.commands.ClimbCommands.SequentialClimb;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
+ * Robot Container containing subsystems and commands
  */
 public class RobotContainer {
-  /** VARIABLES */
+  // Subsystems
+  private LimelightSubsystem limelight = new LimelightSubsystem();
+  private TankDriveSubsystem tankDrive = new TankDriveSubsystem();
+  private ExtensionSubsystem extension = new ExtensionSubsystem();
+  private ShooterSubsystem shooter = new ShooterSubsystem();
+  private RollerSubsystem roller = new RollerSubsystem();
+  private IntakeSubsystem intake = new IntakeSubsystem();
+  private ClimbSubsystem climber = new ClimbSubsystem();
 
-  /** SUBSYSTEMS */
-  private TankDrive_Subsystem TankDrive_Subsystem = new TankDrive_Subsystem();
-
-  private Shooter_Subsystem Shooter_Subsystem = new Shooter_Subsystem();
-  //private Roller_Subsystem Roller_Subsystem = new Roller_Subsystem();
-  private Intake_Subsystem Intake_Subsystem = new Intake_Subsystem();
-  
-  private Climb_Subsystem Climb_Subsystem = new Climb_Subsystem();
-
-  private Limelight_Subsystem Limelight_Subsystem = new Limelight_Subsystem();
-  private Pigeon_Subsystem Pigeon_Subsystem = new Pigeon_Subsystem();
-
-  /** XBOX CONTROLLER */
+  // Xbox controller
   private final CommandXboxController controller01 = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /** 
+   * The container for the robot. Contains subsystems, OI devices, and commands. 
+  */
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
   }
 
-  public Pigeon_Subsystem getPigeon() {
-    return Pigeon_Subsystem;
-  }
-
-  private void configureBindings() {
+  private void configureBindings () {
     /*
      * == KEYBINDS ==
      * LEFT JOYSTICK  : DRIVE
@@ -81,69 +67,63 @@ public class RobotContainer {
      * LEFT TRIGGER   : INTAKE
      * RIGHT TRIGGER  : SHOOT
      * 
-     * D-PAD UP       : CLIMB (Level 3)
-     * D-PAD DOWN     : CLIMB DOWN (Level 1)
+     * LEFT BUMPER    : EXTEND AND RETRACT INTAKE
+     * RIGHT BUMPER   : SHOOTING DRIVE TRAIN ALIGN && ANGLE AND RPM ALIGNING
      * 
-     * D-PAD RIGHT    : SHOOTER ALIGN
-     * D-PAD LEFT     : CLIMBER ALIGN
-     * BUTTON X       : ROTATE ROBOT 180 && INVERSE CONTROLS
+     * BUTTON Y       : ClIMB TO LEVEL 3
+     * BUTTON X       : ALIGN TO LEFT RUNG
+     * BUTTON B       : ALIGN TO RIGHT RUNG
     */
 
-    // Create commands that can be cancelled only once
-    Align_Shoot_Command alignShootCommand = new Align_Shoot_Command(
-        Limelight_Subsystem, TankDrive_Subsystem, Pigeon_Subsystem, controller01
+    // ==== TANK DRIVE BINDING ==== \\
+
+    // Tank_Drive Default Command
+    tankDrive.setDefaultCommand(
+        new TankDriveCommand(tankDrive,
+          () -> controller01.getLeftY(), () -> controller01.getRightX())
     );
 
-    /*
-    Align_Climb_Command alignClimbCommand = new Align_Climb_Command(
-        Limelight_Subsystem, TankDrive_Subsystem, Pigeon_Subsystem, controller01
-    );
-    */
+    // ==== INTAKE BINDING ==== \\
 
-    // == XBOX CONTROLLER KEYBINDING == \\
-    TankDrive_Subsystem.setDefaultCommand(new TankDrive_Command(TankDrive_Subsystem,
-                                        () -> controller01.getLeftY(), 
-                                        () -> controller01.getRightX())
-    );
+    // Intake Command
+    controller01.leftTrigger().whileTrue(new IntakeCommand(intake));
 
-    // Intake
-    controller01.leftTrigger().whileTrue(new Intake_Command(Intake_Subsystem));
+    // Extend or Retract Command 
+    controller01.leftBumper().toggleOnTrue(new ExtendCommand(extension, climber));
 
-    // Shooter Sequence (Run Shooter Motor -> 2 seconds -> Push Balls into Shooter -> Balls are shot)
-    controller01.rightTrigger().whileTrue(new Shooter_Command(Shooter_Subsystem));
-    //controller01.rightTrigger().whileTrue(new Shoot_SequenceCommand(Shooter_Subsystem, Roller_Subsystem));
+    // ==== SHOOTER BINDING ==== \\
 
-    // Climb Up   (Levels : 3)
-    controller01.y().onTrue(new Climb_Command(Climb_Subsystem));
-    controller01.a().onTrue(new Reset(Climb_Subsystem));
+    // Align Turret to Hub while shooting if pressing right_bumper()
+    controller01.rightBumper().whileTrue(new AlignDriveCommand(tankDrive, limelight, controller01));
 
-    // Climb Down (Levels : 1)
-    controller01.povDown().onTrue(new Climb_Down(Climb_Subsystem));
-
-    // Align The Shooter (Cancel on Second press)
-    controller01.povRight().onTrue(
-        new InstantCommand(() -> {
-            if (!alignShootCommand.isScheduled()) {
-                alignShootCommand.schedule();
-            } else {
-                alignShootCommand.cancel();
-            }
-        })
-    );
+    // Align the shooter only and only if driver is aligning and shooting
+    controller01.rightTrigger().and(controller01.rightBumper()).whileTrue(new AlignShooterCommand(shooter, limelight));
     
-    // Align The Climber (Cancel on Second press)
-    // controller01.povLeft().onTrue(
-    //    new InstantCommand(() -> {
-    //        if (!alignClimbCommand.isScheduled()) {
-    //            alignClimbCommand.schedule();
-    //        } else {
-    //            alignClimbCommand.cancel();
-    //        }
-    //    })
-    //);
-    
-    // Rotate Robot && Inverse Controls
-    controller01.x().onTrue(new TankDrive_Inverse_Command(TankDrive_Subsystem, Pigeon_Subsystem));
+    // Shooter Parallel Sequence (Run Shooter Motor -> and -> (1 second -> then -> Run Roller Motor))
+    controller01.rightTrigger().whileTrue(new ShooterParallelCommand(shooter, roller));
+
+    // ==== CLIMBER BINDING ==== \\
+
+    // CLIMB TESTING (Get target positions for the constants)
+    controller01.povUp().whileTrue(new ClimbFoward(climber));
+    controller01.povDown().whileTrue(new ClimbReverse(climber));
+
+    // Climb Up (Levels : 3)
+    controller01.y().onTrue(new SequentialClimb(climber));
+
+    // Turn Robot to Left Pole while driving
+    controller01.x().whileTrue(new AlignClimberCommand(tankDrive, limelight, controller01, "left"));
+
+    // Turn Robot to Right Pole while driving
+    controller01.b().whileTrue(new AlignClimberCommand(tankDrive, limelight, controller01, "right"));
+  }
+
+  /**
+   * Gets the climber subsystem to allow it to do things in teleop init/disabled and more methods
+   * @return climber subsystem
+   */
+  public ClimbSubsystem getClimber () {
+    return climber;
   }
 
   /**
@@ -151,7 +131,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand () {
     // An example command will be run in autonomous
     return null;
   }
