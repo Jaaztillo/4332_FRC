@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterCommand extends Command {
-  /** The Shooter subsystem which controls the velocity and angle of the shooter mechanism */
+  /** The Shooter subsystem which controls when the shooter mechanism will shoot and stop */
   private ShooterSubsystem shooter;
   
   public ShooterCommand(ShooterSubsystem shooter) {

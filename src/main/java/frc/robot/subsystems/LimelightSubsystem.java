@@ -30,7 +30,7 @@ public class LimelightSubsystem extends SubsystemBase {
    */
   public boolean has_AprilTag_Shoot() {
     int id = getDebouncedTagID();
-    return LimelightConstants.APRILTAG_SHOOT.contains(id);
+    return LimelightConstants.Apriltag_Shoot.contains(id);
   }
 
   /**
@@ -39,7 +39,7 @@ public class LimelightSubsystem extends SubsystemBase {
    */
   public boolean has_AprilTag_Climb() {
     int id = getDebouncedTagID();
-    return LimelightConstants.APRILTAG_CLIMB.contains(id);
+    return LimelightConstants.Apriltag_Climb.contains(id);
   }
 
   /**
@@ -57,7 +57,7 @@ public class LimelightSubsystem extends SubsystemBase {
    */
   public double getTX ()
   {
-    return LimelightHelpers.getTX(LimelightConstants.name);
+    return LimelightHelpers.getTX(LimelightConstants.Name);
   }
 
   /**
@@ -65,11 +65,11 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return filtered distance from target to robot
    */
   public double getFilteredDistanceZ() {
-    double rawZ = LimelightHelpers.getTargetPose3d_RobotSpace(LimelightConstants.name).getZ();
+    double rawZ = LimelightHelpers.getTargetPose3d_RobotSpace(LimelightConstants.Name).getZ();
 
-    if (!LimelightHelpers.getTV(LimelightConstants.name)) return filteredZ;
+    if (!LimelightHelpers.getTV(LimelightConstants.Name)) return filteredZ;
 
-    return LimelightConstants.distanceFilter.calculate(rawZ);
+    return LimelightConstants.Distance_Filter.calculate(rawZ);
   }
   
   /**
@@ -77,13 +77,13 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return tag id
    */
   private int getDebouncedTagID() {
-    return (int) LimelightHelpers.getFiducialID(LimelightConstants.name);
+    return (int) LimelightHelpers.getFiducialID(LimelightConstants.Name);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Has AprilTag", hasValidTag());
-    SmartDashboard.putNumber("Debounced Tag ID", getDebouncedTagID());
-    SmartDashboard.putNumber("Filtered Z", filteredZ);
+    SmartDashboard.putBoolean("AprilTag", hasValidTag());
+    SmartDashboard.putNumber("AprilTag Distance", getFilteredDistanceZ());
+    SmartDashboard.putNumber("AprilTag Angle", getTX());
   }
 }

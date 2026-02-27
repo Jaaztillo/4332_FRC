@@ -1,12 +1,11 @@
-/*
-  * MASTER PROGRAMMERS WORK
-  */
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.TankDriveConstants;
 import frc.robot.commands.ClimbCommands.ClimbDown;
 
 /**
@@ -19,6 +18,12 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  private final String kDefault_Auto = "Default";
+  private final String kCustom_Auto = "My Auto";
+  private String m_autoSelected;
+
   /**
    * Robot constructor runs when the robot first starts up and should be for any initialization code
    */
@@ -26,6 +31,10 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    m_chooser.setDefaultOption("Default Auto", kDefault_Auto);
+    m_chooser.addOption("My Auto", kCustom_Auto);
+    SmartDashboard.putData("Auto choices", m_chooser);
   }
 
   /**
@@ -52,6 +61,21 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+    m_autoSelected = m_chooser.getSelected();
+    System.out.println("Auto selected: " + m_autoSelected);
+
+    switch (m_autoSelected) {
+      case kDefault_Auto:
+        // Default Autonomous Command
+        break;
+      case kCustom_Auto:
+        // Custom Autonomous Command
+        break;
+      default:
+        System.out.println("No Autonomous Selected!!!");
+        break;
+    }
+    
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
@@ -78,22 +102,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {}
-
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
-
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {}
-
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {}
 }

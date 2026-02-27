@@ -23,10 +23,10 @@ import frc.robot.Constants.ClimbConstants;
 
 public class ClimbSubsystem extends SubsystemBase {
   // Primary Motor
-  private final SparkMax climb_primary = new SparkMax(ClimbConstants.climb_left_ID, MotorType.kBrushless);
+  private final SparkMax climb_primary = new SparkMax(ClimbConstants.Climb_Left_ID, MotorType.kBrushless);
   
   // Follower Motor
-  private final SparkMax climb_follower = new SparkMax(ClimbConstants.climb_right_ID, MotorType.kBrushless);
+  private final SparkMax climb_follower = new SparkMax(ClimbConstants.Climb_Right_ID, MotorType.kBrushless);
 
   // Encoder
   private final RelativeEncoder encoder = climb_primary.getEncoder();
@@ -169,6 +169,6 @@ public class ClimbSubsystem extends SubsystemBase {
   /** See where the target is to change the constants to climb to level 3 */
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb Target Inches", climb_controller.getSetpoint());
+    SmartDashboard.putNumber("Climbed", climb_controller.getSetpoint());
   }
 }

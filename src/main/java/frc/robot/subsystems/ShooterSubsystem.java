@@ -31,10 +31,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private final InterpolatingDoubleTreeMap angleMap = new InterpolatingDoubleTreeMap();
 
   // Servo Motor
-  private final Servo servo = new Servo(HoodConstants.hood_ID);
+  private final Servo servo = new Servo(HoodConstants.Hood_ID);
 
   // Shooter Motor
-  private final SparkMax shooter_motor = new SparkMax(ShooterConstants.shooter_ID, MotorType.kBrushless);
+  private final SparkMax shooter_motor = new SparkMax(ShooterConstants.Shooter_ID, MotorType.kBrushless);
 
   // Shooter PID
   private final SparkClosedLoopController shooterPid = shooter_motor.getClosedLoopController();
@@ -127,10 +127,12 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    double rpm = SmartDashboard.getNumber("RPM Input", 800.0);
+    // Set RPM via Smart Dashboard | Testing
+    double rpm = SmartDashboard.getNumber("Set RPM", 800.0);
     setRpmSimple(rpm);
 
-    double angle = SmartDashboard.getNumber("Servo Angle: ", 45.0);
+    // Set Servo via Smart Dashboard | Testing
+    double angle = SmartDashboard.getNumber("Set Angle", 45.0);
     setAngleSimple(angle);
 
     // Set Servo Angle

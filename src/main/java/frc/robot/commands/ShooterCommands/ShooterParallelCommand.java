@@ -7,7 +7,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.RollerSubsystem;
 
 /**
- * Parallel command for the shooter
+ * Parallel command for the shooter and roller sequence
  */
 public class ShooterParallelCommand extends ParallelCommandGroup {
   public ShooterParallelCommand(ShooterSubsystem shooter, RollerSubsystem roller) {

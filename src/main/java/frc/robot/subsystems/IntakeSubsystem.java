@@ -10,7 +10,7 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   // Intake Talon SRX Motor
-  private final WPI_TalonSRX Intake = new WPI_TalonSRX(IntakeConstants.intake_ID);
+  private final WPI_TalonSRX Intake = new WPI_TalonSRX(IntakeConstants.Intake_ID);
 
   /**
    * Configure the Talon SRX Intake Motor
@@ -34,10 +34,5 @@ public class IntakeSubsystem extends SubsystemBase {
   public void stop ()
   {
     Intake.set(0.0);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 }

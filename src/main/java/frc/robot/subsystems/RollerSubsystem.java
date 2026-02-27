@@ -9,7 +9,7 @@ import frc.robot.Constants.RollerConstants;
 
 public class RollerSubsystem extends SubsystemBase {
   // Roller Motor
-  private final WPI_TalonSRX TalonSRX = new WPI_TalonSRX(RollerConstants.roller_ID);
+  private final WPI_TalonSRX TalonSRX = new WPI_TalonSRX(RollerConstants.Roller_ID);
 
   /**
    * Configure the Talon SRX Roller

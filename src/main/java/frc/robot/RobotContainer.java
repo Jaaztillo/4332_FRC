@@ -70,7 +70,7 @@ public class RobotContainer {
      * LEFT BUMPER    : EXTEND AND RETRACT INTAKE
      * RIGHT BUMPER   : SHOOTING DRIVE TRAIN ALIGN && ANGLE AND RPM ALIGNING
      * 
-     * BUTTON Y       : ClIMB TO LEVEL 3
+     * BUTTON Y       : CLIMB TO LEVEL 3
      * BUTTON X       : ALIGN TO LEFT RUNG
      * BUTTON B       : ALIGN TO RIGHT RUNG
     */

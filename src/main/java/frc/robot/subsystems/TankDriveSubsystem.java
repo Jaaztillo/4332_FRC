@@ -4,7 +4,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 // Smart Dashboard
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,18 +15,16 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 public class TankDriveSubsystem extends SubsystemBase 
 {
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
   // Leaders
-  private final WPI_TalonSRX left_leader = new WPI_TalonSRX(TankDriveConstants.left_leader_ID);
-  private final WPI_TalonSRX right_leader = new WPI_TalonSRX(TankDriveConstants.right_leader_ID);
+  private final WPI_TalonSRX leftLeader = new WPI_TalonSRX(TankDriveConstants.Left_Leader_ID);
+  private final WPI_TalonSRX rightLeader = new WPI_TalonSRX(TankDriveConstants.Right_Leader_ID);
 
   // Followers
-  private final WPI_TalonSRX left_follower = new WPI_TalonSRX(TankDriveConstants.left_follower_ID);
-  private final WPI_TalonSRX right_follower = new WPI_TalonSRX(TankDriveConstants.right_follower_ID);
+  private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(TankDriveConstants.Left_Follower_ID);
+  private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(TankDriveConstants.Right_Follower_ID);
 
   // Differential Drive Train
-  private final DifferentialDrive drive = new DifferentialDrive(left_leader, right_leader);
+  private final DifferentialDrive drive = new DifferentialDrive(leftLeader, rightLeader);
 
   // Powers that can be added to the drive
   private double right = 0;
@@ -38,22 +35,18 @@ public class TankDriveSubsystem extends SubsystemBase
    */
   public TankDriveSubsystem () 
   {
-    m_chooser.setDefaultOption("Default Auto", TankDriveConstants.kDefault_Auto);
-    m_chooser.addOption("My Auto", TankDriveConstants.kCustom_Auto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-
     // Configure Followers
-    left_follower.follow(left_leader);
-    right_follower.follow(right_leader);
+    leftFollower.follow(leftLeader);
+    rightFollower.follow(rightLeader);
 
     // Basic Talon SRX Config
-    left_leader.configContinuousCurrentLimit(40);
-    left_leader.enableCurrentLimit(true);
-    left_leader.setNeutralMode(NeutralMode.Brake);
+    leftLeader.configContinuousCurrentLimit(40);
+    leftLeader.enableCurrentLimit(true);
+    leftLeader.setNeutralMode(NeutralMode.Brake);
 
     // Inverse the Follows
-    right_leader.setInverted(true);
-    right_follower.setInverted(true);
+    rightLeader.setInverted(true);
+    rightFollower.setInverted(true);
   }
   
   /**
@@ -104,13 +97,13 @@ public class TankDriveSubsystem extends SubsystemBase
    */
   public void stop ()
   {
-    left_leader.stopMotor();
-    right_leader.stopMotor();
+    leftLeader.stopMotor();
+    rightLeader.stopMotor();
   }
 
   @Override
-  public void periodic() 
+  public void periodic()
   {
-    // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("Aligning Drive", Math.abs(left) > 0 && Math.abs(right) > 0);
   }
 }

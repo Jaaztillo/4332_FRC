@@ -6,6 +6,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 // Subsystems
 import frc.robot.subsystems.ClimbSubsystem;
 
+/**
+ * Sequential Climb Command To Climb to Level 3 Via Multiple Climb Commands
+ */
+
 public class SequentialClimb extends SequentialCommandGroup {
   public SequentialClimb(ClimbSubsystem climber) {
     addCommands(

@@ -13,11 +13,11 @@ import frc.robot.Constants.ExtendConstants;
 
 public class ExtensionSubsystem extends SubsystemBase {
   // Extension Talon SRX Motor
-  private final WPI_TalonSRX Extender = new WPI_TalonSRX(ExtendConstants.extend_ID);
+  private final WPI_TalonSRX Extender = new WPI_TalonSRX(ExtendConstants.Extend_ID);
 
   // Extension Limit Switch
-  private final DigitalInput extendedLimit = new DigitalInput(ExtendConstants.extend_Limit_Port);
-  private final DigitalInput retractedLimit = new DigitalInput(ExtendConstants.retract_Limit_Port);
+  private final DigitalInput extendedLimit = new DigitalInput(ExtendConstants.Extend_Limit_Port);
+  private final DigitalInput retractedLimit = new DigitalInput(ExtendConstants.Retract_Limit_Port);
 
   /**
    * Configure the Talon SRX Extension Motor

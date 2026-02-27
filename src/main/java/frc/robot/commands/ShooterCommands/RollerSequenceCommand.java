@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.RollerSubsystem;
 
 /**
- * Sequential Command for the roller
+ * Sequential Command for the roller to run after 1 second
  */
 public class RollerSequenceCommand extends SequentialCommandGroup {
   public RollerSequenceCommand(RollerSubsystem roller) {

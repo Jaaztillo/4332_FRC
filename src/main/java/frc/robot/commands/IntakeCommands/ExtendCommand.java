@@ -13,7 +13,7 @@ public class ExtendCommand extends Command {
   private ClimbSubsystem climber;
 
   /**
-   * 
+   * Extend Command Constructor
    * @param extension a subsystem that will let the intake extend
    * @param climber a subsystem to make sure the climber isn't extended while trying to extend the intake
    */
@@ -27,11 +27,11 @@ public class ExtendCommand extends Command {
   /** Extend or Retract the extension based on the intakes state */
   @Override
   public void initialize() {
-    // Don't Extend if the climber is extended
-    if (climber.isExtended()) return;
-
     // Extend if not extended and is retracted
-    if (!extension.isExtended() && extension.isRetracted()) extension.extend();
+    if (!extension.isExtended() && extension.isRetracted()) { 
+      extension.extend(); 
+      return; 
+    }
 
     // Retract if extended and not retraced
     if (extension.isExtended() && !extension.isRetracted()) extension.retract();

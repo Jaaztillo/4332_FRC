@@ -10,6 +10,7 @@ public class IntakeCommand extends Command {
   private IntakeSubsystem intake;
 
   /**
+   * Intake Command Constructor
    * @param intake subsystem to intake fuel
    */
   public IntakeCommand(IntakeSubsystem intake) 
