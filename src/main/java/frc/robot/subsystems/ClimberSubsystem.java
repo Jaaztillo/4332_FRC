@@ -21,7 +21,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 // Climb Constants
 import frc.robot.Constants.ClimbConstants;
 
-public class ClimbSubsystem extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase {
   // Primary Motor
   private final SparkMax climb_primary = new SparkMax(ClimbConstants.Climb_Left_ID, MotorType.kBrushless);
   
@@ -45,7 +45,7 @@ public class ClimbSubsystem extends SubsystemBase {
   
   /** Creates a new Climb_Subsystem. */
   @SuppressWarnings({"removal"})
-  public ClimbSubsystem () {
+  public ClimberSubsystem () {
     // Primary Motor Configurations
     primary_config
       .smartCurrentLimit(80)
@@ -169,6 +169,6 @@ public class ClimbSubsystem extends SubsystemBase {
   /** See where the target is to change the constants to climb to level 3 */
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climbed", climb_controller.getSetpoint());
+    SmartDashboard.putNumber("Climbed Point", climb_controller.getSetpoint());
   }
 }

@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+// Math Utility
 import edu.wpi.first.math.MathUtil;
+
 // Interpolating Hashmap
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
@@ -34,13 +37,13 @@ public class ShooterSubsystem extends SubsystemBase {
   private final Servo servo = new Servo(HoodConstants.Hood_ID);
 
   // Shooter Motor
-  private final SparkMax shooter_motor = new SparkMax(ShooterConstants.Shooter_ID, MotorType.kBrushless);
+  private final SparkMax shooterMotor = new SparkMax(ShooterConstants.Shooter_ID, MotorType.kBrushless);
 
   // Shooter PID
-  private final SparkClosedLoopController shooterPid = shooter_motor.getClosedLoopController();
+  private final SparkClosedLoopController shooterPid = shooterMotor.getClosedLoopController();
 
   // Shooter configuration
-  private final SparkMaxConfig shooter_config = new SparkMaxConfig();
+  private final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
   // Current angle
   private Double angle = 0.0;
@@ -57,18 +60,19 @@ public class ShooterSubsystem extends SubsystemBase {
   @SuppressWarnings({"removal"})
   public ShooterSubsystem() {
     // Configure current and voltage limit
-    shooter_config.smartCurrentLimit(40);
-    shooter_config.voltageCompensation(12);
+    shooterConfig
+      .smartCurrentLimit(40)
+      .voltageCompensation(12);
 
     // Configure PID values
-    shooter_config.closedLoop
+    shooterConfig.closedLoop
         .p(ShooterConstants.P)
         .i(ShooterConstants.I)
         .d(ShooterConstants.D)
         .velocityFF(ShooterConstants.FF) 
         .outputRange(-1, 1);
     
-    shooter_motor.configure(shooter_config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    shooterMotor.configure(shooterConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
     // Setup Interpolation Maps
     setRpmMap();
@@ -88,7 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void stop() {
     shooting = false;
-    shooter_motor.stopMotor();
+    shooterMotor.stopMotor();
   }
 
   /**
@@ -127,13 +131,15 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    // Set RPM via Smart Dashboard | Testing
-    double rpm = SmartDashboard.getNumber("Set RPM", 800.0);
-    setRpmSimple(rpm);
+    SmartDashboard.putNumber("Set RPM: ", rpm);
+    SmartDashboard.putNumber("Set Angle: ", angle);
 
-    // Set Servo via Smart Dashboard | Testing
-    double angle = SmartDashboard.getNumber("Set Angle", 45.0);
-    setAngleSimple(angle);
+    // Set RPM and Angle via Smart Dashboard | Testing
+    double rpmInput = SmartDashboard.getNumber("Set RPM: ", rpm);
+    double angleInput = SmartDashboard.getNumber("Set Angle: ", angle);
+
+    setRpmSimple(rpmInput);
+    setAngleSimple(angleInput);
 
     // Set Servo Angle
     servo.setAngle(this.angle);

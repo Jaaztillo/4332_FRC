@@ -3,25 +3,19 @@ package frc.robot.commands.IntakeCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.ExtensionSubsystem;
-import frc.robot.subsystems.ClimbSubsystem;
 
-public class ExtendCommand extends Command {
+public class ExtendIntake extends Command {
   // Extension Subsystem to make the intake extend
   private ExtensionSubsystem extension;
 
-  // Climber Subsystem to get if the climber is extended to retract it
-  private ClimbSubsystem climber;
-
   /**
-   * Extend Command Constructor
+   * ExtendIntake Command Constructor
    * @param extension a subsystem that will let the intake extend
-   * @param climber a subsystem to make sure the climber isn't extended while trying to extend the intake
    */
-  public ExtendCommand(ExtensionSubsystem extension, ClimbSubsystem climber) {
+  public ExtendIntake(ExtensionSubsystem extension) {
     this.extension = extension;
-    this.climber = climber;
 
-    addRequirements(extension, climber);
+    addRequirements(extension);
   }
 
   /** Extend or Retract the extension based on the intakes state */

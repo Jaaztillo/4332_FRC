@@ -6,20 +6,26 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import edu.wpi.first.math.MathUtil;
-
 // Subsystems
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.TankDriveSubsystem;
+import frc.robot.subsystems.PigeonSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 
-public class AlignClimberCommand extends Command {
+public class AlignToTower extends Command {
+  /** Pole Offset from apriltag */
+  private double poleOffset = 0.409575;
+
   /** Turn Power Coefficients */
-  double kTurn = 0.5;
+  private double kTurn = 0.5;
 
   /** Limelight Subsystem which can be used to get the distance and angle from a valid april tag */
   private LimelightSubsystem limelight;
 
   /** Tankdrive Subsystem which can be used to control the drive train */
-  private TankDriveSubsystem tankDrive;
+  private DriveSubsystem tankDrive;
+
+  /** Pigeon Subsystem to detect heading of robot */
+  private PigeonSubsystem pigeon;
 
   /** Controller to give feedback to driver when the climber is aligned */
   private CommandXboxController controller;
@@ -34,10 +40,11 @@ public class AlignClimberCommand extends Command {
    * @param controller A Xbox Controller to rumble to the driver when the robot is aligned
    * @param side The side to decide which pole the robot will align to
    */
-  public AlignClimberCommand(TankDriveSubsystem tankDrive, LimelightSubsystem limelight, CommandXboxController controller, String side) {
+  public AlignToTower(DriveSubsystem tankDrive, LimelightSubsystem limelight, PigeonSubsystem pigeon, CommandXboxController controller, String side) {
     this.tankDrive = tankDrive;
     this.limelight = limelight;
     this.controller = controller;
+    this.pigeon = pigeon;
     this.side = side;
 
     addRequirements();
@@ -48,27 +55,22 @@ public class AlignClimberCommand extends Command {
    */
   @Override
   public void execute() {
-    if (!limelight.has_AprilTag_Climb()) return;
-
-    // Get angle to turn to
-    double tx = limelight.getTX();
-
-    // Get distance from Robot to April Tag
-    double distance = limelight.getFilteredDistanceZ();
+    if (!limelight.hasAprilTagClimb()) return;
 
     // Get the offset position
-    double dx = side.equals("left") ? -16.3 : 16.3;
+    double offsetX = side.equals("left") ? -poleOffset : poleOffset;
 
-    // Get offset angle to look towards pole
-    double offsetAngle = Math.toDegrees(
-        Math.atan2(dx, distance)
-      );
+     // Position 3D (foward, left, up)
+    limelight.setTarget(0.0, offsetX, 0.0);
 
-    // Get offset Tx Angle (Look to pole, not tag)
-    double poleTx = tx + offsetAngle;
+    // Get angle to turn to
+    double motorAngle = limelight.getPositionAngle();
+
+    // Get Angle to turn to / heading error
+    double headingError = pigeon.getHeadingError(motorAngle);
 
     // Set turn power
-    double turn = poleTx * kTurn;
+    double turn = headingError * kTurn;
 
     // Clamp Power from Minimum to Maximum in Tank Drive
     turn = MathUtil.clamp(turn, -1.0, 1.0);
@@ -85,28 +87,39 @@ public class AlignClimberCommand extends Command {
     double left  = turn;
     double right = -turn;
 
-    // Turn until the desired angle is reached
-    if (!(Math.abs(tx) < 0.5)) {
-      tankDrive.set(left, right);
+    limelight.setHeadingError(headingError);
+
+    // Stop Turning Once Desired Angle is Reached
+    if (Math.abs(headingError) < 0.5) {
+      tankDrive.resetAlignment();
+      tankDrive.setAligned(true);
+
+      // Rumble Controller
+      controller.setRumble(RumbleType.kBothRumble, 1.0);
+      return;
     }
 
-    // Reset Align if reached desired angle
-    tankDrive.reset();
-    
-    // Rumble controller based on side aligned on
-    if (side.equals("left")) controller.setRumble(RumbleType.kLeftRumble, 1.0);
-    if (side.equals("right")) controller.setRumble(RumbleType.kRightRumble, 1.0);
+    // Keep Turning Once Desired Angle is Reached
+    tankDrive.setAlignment(left, right);
+    tankDrive.setAligned(false);
+
+    // Stop Rumble controller
+    controller.setRumble(RumbleType.kBothRumble, 0.0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     // Reset the values added to arcade drive
-    tankDrive.reset();
+    tankDrive.resetAlignment();
+    tankDrive.setAligned(false);
 
-    // Rumble controller based on side aligned on
-    if (side.equals("left")) controller.setRumble(RumbleType.kLeftRumble, 0.0);
-    if (side.equals("right")) controller.setRumble(RumbleType.kRightRumble, 0.0);
+    // Reset the limelights current target
+    limelight.resetTarget();
+    limelight.setHeadingError(0.0);
+
+    // Stop Rumble controller
+    controller.setRumble(RumbleType.kBothRumble, 0.0);
   }
 
   /** Command only ends when driver let's go of button binding */

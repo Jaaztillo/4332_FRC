@@ -7,7 +7,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 // Math Utility
 import edu.wpi.first.math.MathUtil;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 // Pigeon Constants
 import frc.robot.Constants.PigeonConstants;
 
@@ -22,7 +22,7 @@ public class PigeonSubsystem extends SubsystemBase {
    * get the robots heading
    * @return heading
    */
-  public double getHeading()
+  public Double getHeading()
   {
     return gyroscope.getYaw().getValueAsDouble();
   }
@@ -42,8 +42,12 @@ public class PigeonSubsystem extends SubsystemBase {
    * @param targetHeading angle for robot to look at
    * @return angle from robot to target angle
    */
-  public double getHeadingError(double targetHeading) {
+  public double getHeadingError (double targetHeading) {
     return MathUtil.angleModulus(targetHeading - getHeading());
+  }
+
+  public Rotation2d getRotation2d () {
+    return Rotation2d.fromDegrees(getHeading());
   }
 
   @Override

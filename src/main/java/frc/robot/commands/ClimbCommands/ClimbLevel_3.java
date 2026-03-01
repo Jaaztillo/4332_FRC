@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 // Subsystems
-import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 
 /**
  * Sequential Climb Command To Climb to Level 3 Via Multiple Climb Commands
  */
 
-public class SequentialClimb extends SequentialCommandGroup {
-  public SequentialClimb(ClimbSubsystem climber) {
+public class ClimbLevel_3 extends SequentialCommandGroup {
+  public ClimbLevel_3(ClimberSubsystem climber) {
     addCommands(
       // Climber -> First Rung
       new Climb(climber, 1),

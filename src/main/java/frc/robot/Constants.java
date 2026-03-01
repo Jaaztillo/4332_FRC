@@ -3,8 +3,10 @@ package frc.robot;
 // Java utils (Hashmap, Arrays)
 import java.util.*;
 
-// Mediam Filter
-import edu.wpi.first.math.filter.MedianFilter;
+// Position and Rotation
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 
 /* 
  * Ports: 
@@ -18,19 +20,22 @@ import edu.wpi.first.math.filter.MedianFilter;
  *  12 (Extend)
  *  13 (Extend Limit Switch)
  *  14 (Retract Limit Switch)
+ *  15 Limelight Motor
  */
 
 public final class Constants 
 {
+  public static class AutonomousNames {
+    public static final String Depot_Climb_Blue = "Depot Climb Blue";
+    public static final String Depot_Climb_Red = "Depot Climb Red";
+  }
 
-  public static class OperatorConstants 
-  {
+  public static class OperatorConstants {
     // CONTROLLER PORT ID
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class TankDriveConstants 
-  {
+  public static class TankDriveConstants {
     // DRIVE MOTOR IDS
     public static final int Left_Leader_ID    = 1;
     public static final int Left_Follower_ID  = 2;
@@ -39,20 +44,17 @@ public final class Constants
     public static final int Right_Follower_ID = 4;
   }
 
-  public static class PigeonConstants
-  {
+  public static class PigeonConstants {
     // PIGEON ID
     public static final int Pigeon_ID = 5;
   }
 
-  public static class IntakeConstants
-  {
+  public static class IntakeConstants {
     // INTAKE ID
     public static final int Intake_ID = 6;
   }
 
-  public static class ShooterConstants
-  {
+  public static class ShooterConstants {
     // PID VALUES
     public static final double P  = 0.0001;
     public static final double I  = 0;
@@ -63,14 +65,12 @@ public final class Constants
     public static final int Shooter_ID = 7;
   }
 
-  public static class RollerConstants
-  {
+  public static class RollerConstants {
     // ROLLER ID
     public static final int Roller_ID = 8;
   }
 
-  public static class HoodConstants
-  {
+  public static class HoodConstants {
     // Distance Factor
     public static final double Factor = 1;
 
@@ -78,8 +78,7 @@ public final class Constants
     public static final int Hood_ID = 9;
   }
 
-  public static class ClimbConstants
-  {
+  public static class ClimbConstants {
     // PID VALUES
     public static final double P = 0.1;
     public static final double I = 0.0;
@@ -107,22 +106,70 @@ public final class Constants
     public static final int Retract_Limit_Port = 14;
   }
   
-  public static class LimelightConstants
-  {
+  public static class LimelightConstants {
+    // LIMELIGHT MOTOR ID
+    public static final int Limelight_Motor_Id = 15;
+
     // LIMELIGHT NAME
     public static final String Name = "limelight";
 
-    // FILTER FOR LOWER LATENCY ON DISTANCE CALCULATIONS
-    public static final MedianFilter Distance_Filter = new MedianFilter(3);
+    // APRILTAG OUTPOST IDS
+    public static final Set<Integer> Apriltag_Outpost = new HashSet<>(Arrays.asList(
+      1, 17
+    ));
 
     // APRILTAG SHOOTER IDS
+    public static final Set<Integer> Apriltag_Shoot_Right = new HashSet<>(Arrays.asList(
+      8, 24
+    ));
+
+    public static final Set<Integer> Apriltag_Shoot_Left = new HashSet<>(Arrays.asList(
+      11, 27
+    ));
+
     public static final Set<Integer> Apriltag_Shoot = new HashSet<>(Arrays.asList(
-      5, 8, 9, 10, 11, 2, 21, 24, 25, 26, 27, 18
+    10, 26
     ));
 
     // APRILTAG CLIMBER IDS
     public static final Set<Integer> Apriltag_Climb = new HashSet<>(Arrays.asList(
-      10, 26
+      15, 31
     ));
+
+    // APRIL TAG FIELD HASHMAP (ID, Pose3d)
+    public static final HashMap<Integer, Pose3d> tagFieldMap = new HashMap<>(); static {
+      tagFieldMap.put(1, new Pose3d(Units.inchesToMeters(467.08), Units.inchesToMeters(291.79), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(2, new Pose3d(Units.inchesToMeters(468.56), Units.inchesToMeters(182.08), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(90))));
+      tagFieldMap.put(3, new Pose3d(Units.inchesToMeters(444.80), Units.inchesToMeters(172.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(4, new Pose3d(Units.inchesToMeters(444.80), Units.inchesToMeters(158.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(5, new Pose3d(Units.inchesToMeters(468.56), Units.inchesToMeters(134.56), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(270))));
+      tagFieldMap.put(6, new Pose3d(Units.inchesToMeters(467.08), Units.inchesToMeters(24.85), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(7, new Pose3d(Units.inchesToMeters(470.03), Units.inchesToMeters(24.85), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(8, new Pose3d(Units.inchesToMeters(482.56), Units.inchesToMeters(134.56), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(270))));
+      tagFieldMap.put(9, new Pose3d(Units.inchesToMeters(492.33), Units.inchesToMeters(144.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(10, new Pose3d(Units.inchesToMeters(492.33), Units.inchesToMeters(158.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(11, new Pose3d(Units.inchesToMeters(482.56), Units.inchesToMeters(182.08), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(90))));
+      tagFieldMap.put(12, new Pose3d(Units.inchesToMeters(470.03), Units.inchesToMeters(291.79), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(13, new Pose3d(Units.inchesToMeters(649.58), Units.inchesToMeters(291.02), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(14, new Pose3d(Units.inchesToMeters(649.58), Units.inchesToMeters(274.02), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(15, new Pose3d(Units.inchesToMeters(649.57), Units.inchesToMeters(169.78), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(16, new Pose3d(Units.inchesToMeters(649.57), Units.inchesToMeters(152.78), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(17, new Pose3d(Units.inchesToMeters(183.03), Units.inchesToMeters(24.85), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(18, new Pose3d(Units.inchesToMeters(181.56), Units.inchesToMeters(134.56), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(270))));
+      tagFieldMap.put(19, new Pose3d(Units.inchesToMeters(205.32), Units.inchesToMeters(144.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(20, new Pose3d(Units.inchesToMeters(205.32), Units.inchesToMeters(158.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(21, new Pose3d(Units.inchesToMeters(181.56), Units.inchesToMeters(182.08), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(90))));
+      tagFieldMap.put(22, new Pose3d(Units.inchesToMeters(183.03), Units.inchesToMeters(291.79), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(23, new Pose3d(Units.inchesToMeters(180.08), Units.inchesToMeters(291.79), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(24, new Pose3d(Units.inchesToMeters(167.56), Units.inchesToMeters(182.08), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(90))));
+      tagFieldMap.put(25, new Pose3d(Units.inchesToMeters(157.79), Units.inchesToMeters(172.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(26, new Pose3d(Units.inchesToMeters(157.79), Units.inchesToMeters(158.32), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(27, new Pose3d(Units.inchesToMeters(167.56), Units.inchesToMeters(134.56), Units.inchesToMeters(44.25), new Rotation3d(0.0, 0.0, Math.toRadians(270))));
+      tagFieldMap.put(28, new Pose3d(Units.inchesToMeters(180.08), Units.inchesToMeters(24.85), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(180))));
+      tagFieldMap.put(29, new Pose3d(Units.inchesToMeters(0.54), Units.inchesToMeters(25.62), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(30, new Pose3d(Units.inchesToMeters(0.54), Units.inchesToMeters(42.62), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(31, new Pose3d(Units.inchesToMeters(0.55), Units.inchesToMeters(146.86), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+      tagFieldMap.put(32, new Pose3d(Units.inchesToMeters(0.55), Units.inchesToMeters(163.86), Units.inchesToMeters(21.75), new Rotation3d(0.0, 0.0, Math.toRadians(0))));
+    }
   }
 }

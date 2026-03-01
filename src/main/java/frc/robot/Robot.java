@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.TankDriveConstants;
+import frc.robot.Constants.AutonomousNames;
 import frc.robot.commands.ClimbCommands.ClimbDown;
 
 /**
@@ -14,40 +14,33 @@ import frc.robot.commands.ClimbCommands.ClimbDown;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomous;
 
-  private final RobotContainer m_robotContainer;
+  private final RobotContainer robotContainer;
 
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private final SendableChooser<String> autonomousChooser = new SendableChooser<>();
 
-  private final String kDefault_Auto = "Default";
-  private final String kCustom_Auto = "My Auto";
-  private String m_autoSelected;
+  private String autoSelected;
 
   /**
    * Robot constructor runs when the robot first starts up and should be for any initialization code
    */
   public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    // Initiate Robot Container
+    robotContainer = new RobotContainer();
 
-    m_chooser.setDefaultOption("Default Auto", kDefault_Auto);
-    m_chooser.addOption("My Auto", kCustom_Auto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    // Display Autonomous Options on Dashboard
+    autonomousChooser.setDefaultOption("Depot Climb Blue", AutonomousNames.Depot_Climb_Blue);
+    autonomousChooser.addOption("Depot Climb Red", AutonomousNames.Depot_Climb_Red);
+
+    SmartDashboard.putData("Autonomous Choices", autonomousChooser);
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode.
+   * Run all the commands that are running periodically, without this nothing else works
    */
   @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-  }
+  public void robotPeriodic() { CommandScheduler.getInstance().run(); }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
@@ -59,26 +52,15 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autoSelected = autonomousChooser.getSelected();
 
-    m_autoSelected = m_chooser.getSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
+    System.out.println("Auto selected: " + autoSelected);
 
-    switch (m_autoSelected) {
-      case kDefault_Auto:
-        // Default Autonomous Command
-        break;
-      case kCustom_Auto:
-        // Custom Autonomous Command
-        break;
-      default:
-        System.out.println("No Autonomous Selected!!!");
-        break;
-    }
+    autonomous = robotContainer.getAutonomousCommand(autoSelected);
     
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    if (autonomous != null) {
+      CommandScheduler.getInstance().schedule(autonomous);
     }
   }
 
@@ -92,11 +74,11 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomous != null) {
+      autonomous.cancel();
     }
 
-    CommandScheduler.getInstance().schedule(new ClimbDown(m_robotContainer.getClimber()));;
+    CommandScheduler.getInstance().schedule(new ClimbDown(robotContainer.getClimber()));;
   }
 
   /** This function is called periodically during operator control. */

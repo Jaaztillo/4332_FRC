@@ -5,15 +5,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 // Subsystems
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeCommand extends Command {
+public class IntakeFuel extends Command {
   /** Intake Subsystem which is resposible for intaking the fuel */
   private IntakeSubsystem intake;
 
   /**
-   * Intake Command Constructor
+   * IntakeFuel Command Constructor
    * @param intake subsystem to intake fuel
    */
-  public IntakeCommand(IntakeSubsystem intake) 
+  public IntakeFuel(IntakeSubsystem intake) 
   {
     this.intake = intake;
 

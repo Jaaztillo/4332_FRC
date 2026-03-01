@@ -6,11 +6,11 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 
 // Subsystems
-import frc.robot.subsystems.TankDriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 
-public class TankDriveCommand extends Command {
+public class TankDrive extends Command {
   /** Tank Drive Subsystem which controls the drive train */
-  private TankDriveSubsystem tankDrive;
+  private DriveSubsystem tankDrive;
 
   /** fowardPercent -> LeftJoystick | rotationPercent -> RightJoystick*/
   private DoubleSupplier fowardPercent;
@@ -22,7 +22,7 @@ public class TankDriveCommand extends Command {
    * @param fowardPercent the value from the left joystick to control the drive
    * @param rotationPercent the value from the right joystick to control the twist
    */
-  public TankDriveCommand(TankDriveSubsystem tankDrive, DoubleSupplier fowardPercent, DoubleSupplier rotationPercent) {
+  public TankDrive(DriveSubsystem tankDrive, DoubleSupplier fowardPercent, DoubleSupplier rotationPercent) {
     this.tankDrive = tankDrive;
 
     this.fowardPercent = fowardPercent;

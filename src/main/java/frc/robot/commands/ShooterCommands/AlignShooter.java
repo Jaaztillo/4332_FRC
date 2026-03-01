@@ -6,14 +6,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class AlignShooterCommand extends Command {
+public class AlignShooter extends Command {
   /** The Shooter subsystem which controls the velocity and angle of the shooter mechanism */
   private ShooterSubsystem shooter;
 
   /** The limelight subsystem which let's us get data for distance control */
   private LimelightSubsystem limelight;
 
-  public AlignShooterCommand(ShooterSubsystem shooter, LimelightSubsystem limelight) {
+  /**
+   * 
+   * @param shooter the subsystem which will make sure the RPM and Angle match to shoot towards the desired location
+   * @param limelight the subsystem used to measure the distance
+   */
+  public AlignShooter(ShooterSubsystem shooter, LimelightSubsystem limelight) {
     this.shooter = shooter;
     this.limelight = limelight;
   }
@@ -23,9 +28,9 @@ public class AlignShooterCommand extends Command {
    */
   @Override
   public void execute() {
-    if (!limelight.has_AprilTag_Shoot()) return;
+    if (!limelight.hasAprilTagShoot() && !limelight.hasAprilTagShootLeft() && !limelight.hasAprilTagShootRight()) return;
     
-    Double distance = limelight.getFilteredDistanceZ();
+    Double distance = limelight.getTarget().getZ();
     
     shooter.setAngle(distance);
     shooter.setRPM(distance);
