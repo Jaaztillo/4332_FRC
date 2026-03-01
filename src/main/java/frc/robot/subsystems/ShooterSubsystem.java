@@ -8,8 +8,9 @@ import edu.wpi.first.math.MathUtil;
 // Interpolating Hashmap
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
-// Smart Dashboard
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// SmartDashboard
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.DoublePublisher;
 
 // Spark Max
 import com.revrobotics.spark.SparkMax;
@@ -22,6 +23,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 
 // Servo
 import edu.wpi.first.wpilibj.Servo;
+
 import frc.robot.Constants.HoodConstants;
 // Shooter Constants
 import frc.robot.Constants.ShooterConstants;
@@ -45,14 +47,16 @@ public class ShooterSubsystem extends SubsystemBase {
   // Shooter configuration
   private final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
-  // Current angle
+  // Current angle and rpm
   private Double angle = 0.0;
-
-  // Current rpm
   private Double rpm = 0.0;
 
   // Shooting Flag
   private boolean shooting = false;
+
+  // Dashboard data publishers
+  private final DoublePublisher rpmPublisher;
+  private final DoublePublisher anglePublisher;
 
   /**
    * Configure the Shooter Subsystem
@@ -77,6 +81,21 @@ public class ShooterSubsystem extends SubsystemBase {
     // Setup Interpolation Maps
     setRpmMap();
     setAngleMap();
+
+    // Initialize publishers on SmartDashboard table
+    rpmPublisher = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getDoubleTopic("Set Rpm")
+        .publish();
+
+    anglePublisher = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getDoubleTopic("Set Angle")
+        .publish();
+
+    // Set initial values
+    rpmPublisher.set(0.0);
+    anglePublisher.set(0.0);
   }
 
   /**
@@ -131,15 +150,23 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Set RPM: ", rpm);
-    SmartDashboard.putNumber("Set Angle: ", angle);
+    // Read values from Elastic widget (via NetworkTables)
+    double rpmInput = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getEntry("Set Rpm")
+        .getDouble(this.rpm);
 
-    // Set RPM and Angle via Smart Dashboard | Testing
-    double rpmInput = SmartDashboard.getNumber("Set RPM: ", rpm);
-    double angleInput = SmartDashboard.getNumber("Set Angle: ", angle);
+    double angleInput = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getEntry("Set Angle")
+        .getDouble(this.angle);
 
     setRpmSimple(rpmInput);
     setAngleSimple(angleInput);
+
+    // Update values if input changed
+    if (rpmInput != this.rpm) this.rpm = rpmInput;
+    if (angleInput != this.angle) this.angle = angleInput;
 
     // Set Servo Angle
     servo.setAngle(this.angle);

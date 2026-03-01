@@ -1,0 +1,32 @@
+{
+  "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "Autonomous Choices": {
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Autonomous Choices": "String Chooser",
+      "/SmartDashboard/Game Field": "Field2d"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT3)",
+    "visible": false
+  },
+  "NetworkTables View": {
+    "visible": false
+  }
+}

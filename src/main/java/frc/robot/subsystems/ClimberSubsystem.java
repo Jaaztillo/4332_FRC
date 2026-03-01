@@ -2,8 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// Smart Dashboard
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.DoublePublisher;
 
 // Spark Imports (SparkMax, SparkMaxConfig, MotorType, PersistMode, ResetMode)
 import com.revrobotics.RelativeEncoder;
@@ -42,6 +42,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
   // Climber extended State
   private boolean extended = false;
+
+  // Dashboard Publishers
+  private DoublePublisher climbPublisher;
   
   /** Creates a new Climb_Subsystem. */
   @SuppressWarnings({"removal"})
@@ -85,6 +88,15 @@ public class ClimberSubsystem extends SubsystemBase {
 
     // Set Encoder Position to Initial Position
     encoder.setPosition(0);
+
+    // Initialize publishers on SmartDashboard table
+    climbPublisher = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getDoubleTopic("Climbed Point")
+        .publish();
+    
+    // Set initial values
+    climbPublisher.set(0.0);
   }
 
   /**
@@ -169,6 +181,6 @@ public class ClimberSubsystem extends SubsystemBase {
   /** See where the target is to change the constants to climb to level 3 */
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climbed Point", climb_controller.getSetpoint());
+    climbPublisher.set(climb_controller.getSetpoint());
   }
 }

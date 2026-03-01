@@ -1,17 +1,19 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 // Differential Drive
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
-// Smart Dashboard
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.TankDriveConstants;
+// Dashboard
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 // TalonSRX
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+
+import frc.robot.Constants.TankDriveConstants;
 
 public class DriveSubsystem extends SubsystemBase 
 {
@@ -32,6 +34,10 @@ public class DriveSubsystem extends SubsystemBase
   // Powers that can be added to the drive
   private double right = 0;
   private double left = 0;
+
+
+  // Dashboard Publishers
+  private BooleanPublisher alignedPublisher; 
   
   /**
    * Configure the tank drive motors and the robot's odometry and pose
@@ -50,6 +56,15 @@ public class DriveSubsystem extends SubsystemBase
     // Inverse the Follows
     rightLeader.setInverted(true);
     rightFollower.setInverted(true);
+
+    // SmartDashboard Configuration
+    alignedPublisher = NetworkTableInstance.getDefault()
+        .getTable("SmartDashboard")
+        .getBooleanTopic("Aligned")
+        .publish();
+    
+    // Set initial values
+    alignedPublisher.set(false);
   }
   
   /**
@@ -129,6 +144,6 @@ public class DriveSubsystem extends SubsystemBase
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Aligned", aligned);
+    alignedPublisher.set(aligned);
   }
 }

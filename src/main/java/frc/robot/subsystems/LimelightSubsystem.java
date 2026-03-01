@@ -19,11 +19,14 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-// Smart Dashboard
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Timer
 import edu.wpi.first.wpilibj.Timer;
+
+// Dashboard
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 
 // Spark Max
 import com.revrobotics.spark.SparkMax;
@@ -32,6 +35,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
+
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Constants.LimelightConstants;
@@ -63,6 +67,12 @@ public class LimelightSubsystem extends SubsystemBase {
 
   // Current Heading Error
   private double headingError = 0.0;
+
+  // Dashboard Publishers
+  StringPublisher aprilTagPublisher;
+  DoublePublisher anglePublisher;
+  DoublePublisher headingPublisher;
+  DoublePublisher distancePublisher;
   
   /**
    * Limelight constructor
@@ -79,6 +89,32 @@ public class LimelightSubsystem extends SubsystemBase {
 
     // Set Encoder Position to Initial Position
     encoder.setPosition(0);
+
+    // Dashboard configuration
+    aprilTagPublisher = NetworkTableInstance.getDefault()
+      .getTable("SmartDashboard")
+      .getStringTopic("AprilTag")
+      .publish();
+
+    anglePublisher = NetworkTableInstance.getDefault()
+      .getTable("SmartDashboard")
+      .getDoubleTopic("Angle")
+      .publish();
+
+    headingPublisher = NetworkTableInstance.getDefault()
+      .getTable("SmartDashboard")
+      .getDoubleTopic("Heading Error")
+      .publish();
+
+    distancePublisher = NetworkTableInstance.getDefault()
+      .getTable("SmartDashboard")
+      .getDoubleTopic("Distance")
+      .publish();
+
+    aprilTagPublisher.set("");
+    anglePublisher.set(0.0);
+    headingPublisher.set(0.0);
+    distancePublisher.set(0.0);
   }
   
   /**
@@ -262,19 +298,23 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     String currentTag = 
-      hasAprilTagOutpost() ? "Outpost Tag"
-    : hasAprilTagShoot() ? "Shooter Tag" 
-    : hasAprilTagShootLeft() ?" Shooter Left Tag" 
-    : hasAprilTagShootRight() ? "Shooter Right Tag" 
-    : hasAprilTagClimb() ? "Climber Tag"
-    : "No Tag Found";
+        hasAprilTagOutpost() ? "Outpost Tag"
+      : hasAprilTagShoot() ? "Shooter Tag" 
+      : hasAprilTagShootLeft() ? "Shooter Left Tag" 
+      : hasAprilTagShootRight() ? "Shooter Right Tag" 
+      : hasAprilTagClimb() ? "Climber Tag"
+      : "No Tag Found";
     
-    SmartDashboard.putString("AprilTag", currentTag);
-    SmartDashboard.putNumber("Heading Error", headingError);
+    // Update Smart Dashboard
+    aprilTagPublisher.set(currentTag);
+    headingPublisher.set(headingError);
 
     if (currentTarget != null) {
-      SmartDashboard.putNumber("Distance", currentTarget.getZ());
-      SmartDashboard.putNumber("Angle", getTx());
+      distancePublisher.set(currentTarget.getZ());
+      anglePublisher.set(getTx());
+    } else {
+      distancePublisher.set(0.0);
+      anglePublisher.set(0.0);
     }
   }
 }

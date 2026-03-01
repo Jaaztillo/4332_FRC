@@ -1,12 +1,20 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+// Camera Server
+import edu.wpi.first.cameraserver.CameraServer;
+
+// ShuffleBoard
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.AutonomousNames;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 import frc.robot.commands.ClimbCommands.ClimbDown;
+
+import frc.robot.Constants.AutonomousNames;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -19,6 +27,8 @@ public class Robot extends TimedRobot {
   private final RobotContainer robotContainer;
 
   private final SendableChooser<String> autonomousChooser = new SendableChooser<>();
+
+  private final Field2d field = new Field2d();
 
   private String autoSelected;
 
@@ -33,7 +43,14 @@ public class Robot extends TimedRobot {
     autonomousChooser.setDefaultOption("Depot Climb Blue", AutonomousNames.Depot_Climb_Blue);
     autonomousChooser.addOption("Depot Climb Red", AutonomousNames.Depot_Climb_Red);
 
+    // Start Camera Server
+    CameraServer.startAutomaticCapture("Camera", 0);
+  }
+
+  @Override
+  public void robotInit () {
     SmartDashboard.putData("Autonomous Choices", autonomousChooser);
+    SmartDashboard.putData("Game Field", field);
   }
 
   /**
