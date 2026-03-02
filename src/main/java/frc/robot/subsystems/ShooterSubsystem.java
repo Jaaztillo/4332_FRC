@@ -24,9 +24,10 @@ import com.revrobotics.spark.ClosedLoopSlot;
 // Servo
 import edu.wpi.first.wpilibj.Servo;
 
-import frc.robot.Constants.HoodConstants;
-// Shooter Constants
+// Constants
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.DashboardIds;
+import frc.robot.Constants.HoodConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   // RPM Map
@@ -85,12 +86,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // Initialize publishers on SmartDashboard table
     rpmPublisher = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getDoubleTopic("Set Rpm")
+        .getDoubleTopic(DashboardIds.Set_Rpm)
         .publish();
 
     anglePublisher = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getDoubleTopic("Set Angle")
+        .getDoubleTopic(DashboardIds.Set_Angle)
         .publish();
 
     // Set initial values
@@ -153,12 +154,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // Read values from Elastic widget (via NetworkTables)
     double rpmInput = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getEntry("Set Rpm")
+        .getEntry(DashboardIds.Set_Rpm)
         .getDouble(this.rpm);
 
     double angleInput = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getEntry("Set Angle")
+        .getEntry(DashboardIds.Set_Angle)
         .getDouble(this.angle);
 
     setRpmSimple(rpmInput);

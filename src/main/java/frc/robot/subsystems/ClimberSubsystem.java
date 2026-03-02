@@ -20,6 +20,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 
 // Climb Constants
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Constants.DashboardIds;
 
 public class ClimberSubsystem extends SubsystemBase {
   // Primary Motor
@@ -92,7 +93,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // Initialize publishers on SmartDashboard table
     climbPublisher = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getDoubleTopic("Climbed Point")
+        .getDoubleTopic(DashboardIds.Climbed_Point)
         .publish();
     
     // Set initial values

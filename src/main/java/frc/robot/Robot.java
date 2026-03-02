@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.commands.ClimbCommands.ClimbDown;
 
 import frc.robot.Constants.AutonomousNames;
+import frc.robot.Constants.DashboardIds;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -49,10 +50,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit () {
-    SmartDashboard.putData("Autonomous Choices", autonomousChooser);
-    SmartDashboard.putData("Game Field", field);
+    SmartDashboard.putData(DashboardIds.Autonomous_Choices, autonomousChooser);
+    SmartDashboard.putData(DashboardIds.Game_Field, field);
   }
-
+  
   /**
    * Run all the commands that are running periodically, without this nothing else works
    */

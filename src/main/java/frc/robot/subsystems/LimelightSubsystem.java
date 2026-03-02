@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Limelight helpers
 import frc.robot.LimelightHelpers;
-
+import edu.wpi.first.math.MathUtil;
 // Geometry
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -24,52 +24,42 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Timer;
 
 // Dashboard
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 
-// Spark Max
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-import com.revrobotics.RelativeEncoder;
+// Servo
+import edu.wpi.first.wpilibj.Servo;
 
+import frc.robot.Constants.DashboardIds;
 import frc.robot.Constants.LimelightConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
-  // Limelight Motor
-  private final SparkMax limelightMotor = new SparkMax(LimelightConstants.Limelight_Motor_Id, MotorType.kBrushless);
-
-  // Encoder
-  private final RelativeEncoder encoder = limelightMotor.getEncoder();
-
-  // Controller
-  private final SparkClosedLoopController motorController = limelightMotor.getClosedLoopController();
-
-  // Motor configuration
-  private final SparkMaxConfig motorConfig = new SparkMaxConfig();
+  // Servo Motor
+  private final Servo servo = new Servo(LimelightConstants.Limelight_Motor_Id);
 
   // Pose timeout (seconds)
   private final double Field_Pose_Timeout = 1.5;
 
+  // Last Target Pose
+  private Pose3d lastFieldPose = null;
+  private double lastPoseTimestamp = 0.0;
+
+  // Current tag relative to field
+  private Pose3d tagFieldPose = null;
+
   // Current Target
   private Pose3d currentTarget = null;
 
-  // Cached field pose
-  private Pose3d lastFieldPose = null;
-
-  // Timestamp of last valid pose
-  private double lastPoseTimestamp = 0.0;
-
-  // Current Heading Error
-  private double headingError = 0.0;
+  // Servo Roaming
+  private double roamAngle = 0.0;
+  private double roamSpeed = 2.0; // degrees per call (20ms)
+  private boolean increasing = true;
 
   // Dashboard Publishers
-  StringPublisher aprilTagPublisher;
+  DoublePublisher aprilTagPublisher;
   DoublePublisher anglePublisher;
   DoublePublisher headingPublisher;
   DoublePublisher distancePublisher;
@@ -77,41 +67,29 @@ public class LimelightSubsystem extends SubsystemBase {
   /**
    * Limelight constructor
    */
-  @SuppressWarnings({"removal"})
   public LimelightSubsystem() {
-    // Configure the limelight neo motor
-    motorConfig
-      .smartCurrentLimit(40)
-      .voltageCompensation(12);
-
-    // Apply the configuration
-    limelightMotor.configure(motorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-
-    // Set Encoder Position to Initial Position
-    encoder.setPosition(0);
-
     // Dashboard configuration
     aprilTagPublisher = NetworkTableInstance.getDefault()
       .getTable("SmartDashboard")
-      .getStringTopic("AprilTag")
+      .getDoubleTopic(DashboardIds.AprilTag)
       .publish();
 
     anglePublisher = NetworkTableInstance.getDefault()
       .getTable("SmartDashboard")
-      .getDoubleTopic("Angle")
+      .getDoubleTopic(DashboardIds.Angle)
       .publish();
 
     headingPublisher = NetworkTableInstance.getDefault()
       .getTable("SmartDashboard")
-      .getDoubleTopic("Heading Error")
+      .getDoubleTopic(DashboardIds.Heading_Error)
       .publish();
 
     distancePublisher = NetworkTableInstance.getDefault()
       .getTable("SmartDashboard")
-      .getDoubleTopic("Distance")
+      .getDoubleTopic(DashboardIds.Distance)
       .publish();
 
-    aprilTagPublisher.set("");
+    aprilTagPublisher.set(-1);
     anglePublisher.set(0.0);
     headingPublisher.set(0.0);
     distancePublisher.set(0.0);
@@ -126,82 +104,71 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   /**
-   * checks for a valid outpost tag
-   * @return isValid shooting tag
+   * Get the angle limelight motor is at
+   * @return the angle the motor is at
    */
-  public boolean hasAprilTagOutpost() {
-    int id = getTagID();
-    return LimelightConstants.Apriltag_Outpost.contains(id);
-  }
+  public double servoAngle () { return servo.getAngle(); }
 
   /**
-   * checks for a valid shooting tag which is foward
-   * @return isValid shooting tag
-   */
-  public boolean hasAprilTagShoot() {
-    int id = getTagID();
-    return LimelightConstants.Apriltag_Shoot.contains(id);
-  }
-
-  /**
-   * checks for a valid shooting tag on the right side
-   * @return isValid shooting tag
-   */
-  public boolean hasAprilTagShootRight() {
-    int id = getTagID();
-    return LimelightConstants.Apriltag_Shoot_Right.contains(id);
-  }
-
-  /**
-   * checks for a valid shooting tag on the left side
-   * @return isValid shooting tag
-   */
-  public boolean hasAprilTagShootLeft() {
-    int id = getTagID();
-    return LimelightConstants.Apriltag_Shoot_Left.contains(id);
-  }
-
-  /**
-   * checks for a valid climbing tag
-   * @return isValid climbing tag
-   */
-  public boolean hasAprilTagClimb() {
-    int id = getTagID();
-    return LimelightConstants.Apriltag_Climb.contains(id);
-  }
-
-  /**
-   * Offsets the current april tag and sets a new virtual april tag with the offset
-   * @param foward the relative-foward offset
-   * @param left the relative-left offset
-   * @param up the relative-up offset
-   * @return new virtual april tag pose
-   */
-  public void setTarget (double foward, double left, double up) {
-    Pose3d tagPose = LimelightHelpers.getTargetPose3d_RobotSpace(LimelightConstants.Name);
-
-    Transform3d tagToTarget = new Transform3d(
-      new Translation3d(foward, left, up),
-      new Rotation3d()
-    );
-
-    currentTarget = tagPose.transformBy(tagToTarget);
-  }
-
-  /**
-   * Gets the current target of the limelight
-   * @return the current target of the limelight
-   */
-  public Pose3d getTarget () { return currentTarget; }
-
-  /**
-   * Get the tx of the current april tag
+   * Get the angle we need to turn to
    * @return the angle to the current target in the x axis
    */
-  public double getTx () {
-    return Math.toDegrees(
-      Math.atan2(currentTarget.getX(), currentTarget.getZ())
-    );
+  public double turnAngle (Pose3d target) {
+    if (lastFieldPose == null || target == null) {
+      return 0.0;
+    }
+
+    // Robot position (field)
+    double rx = lastFieldPose.getX();
+    double ry = lastFieldPose.getY();
+
+    // Target position (field)
+    double dx = target.getX() - rx;
+    double dy = target.getY() - ry;
+
+    // Robot heading (field-relative)
+    double targetBearing = Math.toDegrees(
+      Math.atan2(dy, dx));
+
+    // Angle robot must turn
+    double error = targetBearing - targetBearing;
+
+    // Normalize to [-180, 180]
+    while (error > 180) error -= 360;
+    while (error < -180) error += 360;
+
+    return error;
+  }
+
+  /**
+   * Get the distance from the robot to the target
+   * @param target the target we want the distance to
+   * @return the distance from the robot to target
+   */
+  public double getDistance (Pose3d target) {
+    if (lastFieldPose == null || target == null) {
+      return 0.0;
+    }
+
+    // Robot position (field)
+    double rx = lastFieldPose.getX();
+    double ry = lastFieldPose.getY();
+
+    // Target position (field)
+    double dx = target.getX() - rx;
+    double dy = target.getY() - ry;
+
+    double distance = Math.hypot(dx, dy);
+
+    return distance;
+  }
+
+  /**
+   * get the current target the driver is aiming to
+   * @return the current target
+   */
+  public Pose3d getCurrentTarget () {
+    return currentTarget;
   }
 
   /**
@@ -209,28 +176,30 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return field-relative pose of robot
    */
   public Pose3d getFieldRelativePose() {
-    double now = Timer.getFPGATimestamp();
+    if (!hasValidTag()) tagFieldPose = null;
 
+    double now = Timer.getFPGATimestamp();
+    
     // If there is a valid tag compute a new pose
     if (hasValidTag()) {
-      Pose3d tagFieldPose = LimelightConstants.tagFieldMap.get(getTagID());
+      tagFieldPose = LimelightConstants.tagFieldMap.get(getTagID());
       if (tagFieldPose == null) return null;
 
-      Pose3d cameraToTagPose =
+      Pose3d tagCameraPose =
           LimelightHelpers.getTargetPose3d_RobotSpace(LimelightConstants.Name);
 
-      Transform3d cameraToTag = new Transform3d(
-          cameraToTagPose.getTranslation(),
-          cameraToTagPose.getRotation()
+      Transform3d tagToCamera = new Transform3d(
+          tagCameraPose.getTranslation(),
+          tagCameraPose.getRotation()
       );
 
       Transform3d cameraToRobot = new Transform3d(
           new Translation3d(0.0, 0.0, 0.0),
-          new Rotation3d(0.0, 0.0, Math.toRadians(getPositionAngle()))
+          new Rotation3d(0.0, 0.0, Math.toRadians(servoAngle()-135))
       );
 
       lastFieldPose = tagFieldPose
-          .transformBy(cameraToTag.inverse())
+          .transformBy(tagToCamera.inverse())
           .transformBy(cameraToRobot.inverse());
 
       lastPoseTimestamp = now;
@@ -245,76 +214,137 @@ public class LimelightSubsystem extends SubsystemBase {
     // Field Relative Robot Pose Timed out
     return null;
   }
-
-  /**
-   * Resets the current target
-   */
-  public void resetTarget () { currentTarget = null; }
-
-  /**
-   * Get the angle limelight motor is at
-   * @return the angle the motor is at
-   */
-  public double getPositionAngle () { return motorController.getSetpoint(); }
-
-  /**
-   * Set the heading error of the robot
-   * @param headingError the new heading error of the robot
-   */
-  public void setHeadingError (double headingError) { this.headingError = headingError; }
   
+  /**
+   * Get the angle from the robot to the hub
+   * @return the target angle from the robot to the hub
+   */
+  public double lookAtHub () {
+    if (lastFieldPose == null) return 0.0;
+
+    currentTarget = getAlliance().equals("Red") ? LimelightConstants.Red_Hub : LimelightConstants.Blue_Hub;
+    
+    return turnAngle(currentTarget);
+  }
+
+  /**
+   * Get the angle from the robot to the outpost
+   * @return the target angle from the robot to the outpost
+   */
+  public double lookAtOutPost () {
+    if (lastFieldPose == null) return 0.0;
+
+    currentTarget = getAlliance().equals("Red") ? LimelightConstants.Red_Outpost : LimelightConstants.Blue_Outpost;
+
+    return turnAngle(currentTarget);
+  }
+
+  /**
+   * Get the angle from the robot to the tower
+   * @param side the side the robot will climb
+   * @return the target angle from the robot to the tower
+   */
+  public double lookAtClimber (String side) {
+    if (lastFieldPose == null) return 0.0;
+
+    currentTarget = getAlliance().equals("Red") ?
+      side.equals("Left") ? LimelightConstants.Red_Left_Pole : LimelightConstants.Red_Right_Pole
+    : side.equals("Left") ? LimelightConstants.Blue_Left_Pole : LimelightConstants.Blue_Right_Pole;
+
+    return turnAngle(currentTarget);
+  }
+
+  /**
+   * Stop Traching a target and keep roaming
+   */
+  public void stopTargeting () { 
+    currentTarget = null; 
+  }
+  
+  /**
+   * Camera roams looking for a tag all the time
+   */
+  private void roamSearch() {
+    if (hasValidTag()) {
+      double tx = LimelightHelpers.getTX(LimelightConstants.Name);
+
+      double servoTarget = 135.0 + tx;
+      servoTarget = MathUtil.clamp(servoTarget, 0.0, 270.0);
+
+      servo.setAngle(servoTarget);
+      return;
+    }
+
+    if (increasing) {
+        roamAngle += roamSpeed;
+        if (roamAngle >= 270.0) {
+            roamAngle = 270.0;
+            increasing = false;
+        }
+    } else {
+        roamAngle -= roamSpeed;
+        if (roamAngle <= 0.0) {
+            roamAngle = 0.0;
+            increasing = true;
+        }
+    }
+
+    servo.setAngle(roamAngle);
+  }
+
+  /**
+   * get the alliance color we are on
+   * @return the alliance we're on
+   */
+  private String getAlliance () {
+    return DriverStation.getAlliance()
+      .map(a -> a == Alliance.Red ? "Red" : "Blue")
+      .orElse("Red");
+  }
+
   /**
    * gets the current tag id
    * @return tag id
    */
-  private int getTagID() { return (int) LimelightHelpers.getFiducialID(LimelightConstants.Name); }
-
-  /**
-   * Moves Neo Motor to target angle
-   * @param targetAngle the target angle we want the neo motor to look at
-   */
-  private void moveToAngle (double targetAngle) {
-    double currentAngle = encoder.getPosition() * 360.0;
-
-    double delta = targetAngle - currentAngle;
-
-    if (delta > 180.0) delta -= 360.0;
-    if (delta < -180.0) delta += 360.0;
-
-    double newTarget = currentAngle + delta;
-
-    motorController.setSetpoint(newTarget / 360.0, ControlType.kPosition);
+  private int getTagID() { 
+    return (int) LimelightHelpers.getFiducialID(LimelightConstants.Name); 
   }
-
+  
   /**
    * Display the current april tag and the distance and angle it is at | 20ms
    */
   @Override
   public void periodic() {
-    if (currentTarget == null) {
-      motorController.setSetpoint(0, ControlType.kPosition);
-    } else {
-      moveToAngle(getTx());
-    }
+    // Update robot pose
+    Pose3d robotPose = getFieldRelativePose();
 
-    String currentTag = 
-        hasAprilTagOutpost() ? "Outpost Tag"
-      : hasAprilTagShoot() ? "Shooter Tag" 
-      : hasAprilTagShootLeft() ? "Shooter Left Tag" 
-      : hasAprilTagShootRight() ? "Shooter Right Tag" 
-      : hasAprilTagClimb() ? "Climber Tag"
-      : "No Tag Found";
-    
-    // Update Smart Dashboard
-    aprilTagPublisher.set(currentTag);
-    headingPublisher.set(headingError);
+    // Servo scans and tracks the current target
+    roamSearch();
 
-    if (currentTarget != null) {
+    // Current detected tag
+    int tagId = getTagID();
+    aprilTagPublisher.set(tagId);
+
+    if (lastFieldPose != null && currentTarget != null) {
       distancePublisher.set(currentTarget.getZ());
-      anglePublisher.set(getTx());
+      anglePublisher.set(turnAngle(currentTarget));
     } else {
       distancePublisher.set(0.0);
       anglePublisher.set(0.0);
+    }
+
+    // Display robot pose on dashboard
+    if (robotPose != null) {
+        var poseEntry = NetworkTableInstance.getDefault()
+          .getTable("SmartDashboard")
+          .getEntry(DashboardIds.Game_Field);
+
+        double x = robotPose.getX();
+        double y = robotPose.getY();
+        double rot = Math.toDegrees(robotPose.getRotation().getZ());
+
+        // Publish as array [x, y, yaw]
+        poseEntry.setDoubleArray(new double[]{x, y, rot});
     }
   }
 }

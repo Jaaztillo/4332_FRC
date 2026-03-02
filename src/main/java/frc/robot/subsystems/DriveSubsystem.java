@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import frc.robot.Constants.DashboardIds;
 import frc.robot.Constants.TankDriveConstants;
 
 public class DriveSubsystem extends SubsystemBase 
@@ -60,7 +61,7 @@ public class DriveSubsystem extends SubsystemBase
     // SmartDashboard Configuration
     alignedPublisher = NetworkTableInstance.getDefault()
         .getTable("SmartDashboard")
-        .getBooleanTopic("Aligned")
+        .getBooleanTopic(DashboardIds.Aligned)
         .publish();
     
     // Set initial values

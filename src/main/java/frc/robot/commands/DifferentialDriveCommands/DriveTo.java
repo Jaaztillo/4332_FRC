@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.PigeonSubsystem;
 
 public class DriveTo extends Command {
   private final double Position_Tolarance = 0.05;
@@ -24,7 +23,6 @@ public class DriveTo extends Command {
 
   private DriveSubsystem tankDrive;
   private LimelightSubsystem limelight;
-  private PigeonSubsystem pigeon;
 
   private List<PathPoint> points;
   private int currentPointIndex;
@@ -33,10 +31,9 @@ public class DriveTo extends Command {
 
   private PathPlannerPath path;
 
-  public DriveTo(DriveSubsystem tankDrive, LimelightSubsystem limelight, PigeonSubsystem pigeon, String pathName) {
+  public DriveTo(DriveSubsystem tankDrive, LimelightSubsystem limelight, String pathName) {
     this.tankDrive = tankDrive;
     this.limelight = limelight;
-    this.pigeon = pigeon;
 
     this.pathName = pathName;
 
@@ -59,48 +56,44 @@ public class DriveTo extends Command {
 
   @Override
   public void execute() {
-    // Ensure there is a path and points
-    if (path == null || points == null) return;
+      if (path == null || points == null) return;
 
-    // Get Robot Pose relative to the Field
-    Pose3d currentPose = limelight.getFieldRelativePose();
+      Pose3d currentPose = limelight.getFieldRelativePose();
 
-    // Ensure there is a currentPose for the robot
-    if (currentPose == null) {
-      tankDrive.stop();
-      return;
-    }
+      if (currentPose == null) {
+          tankDrive.stop();
+          return;
+      }
 
-    // End Once there is no more points left
-    if (currentPointIndex >= points.size()) {
-      tankDrive.stop();
-      return;
-    }
+      if (currentPointIndex >= points.size()) {
+          tankDrive.stop();
+          return;
+      }
 
-    // Current target point
-    Translation2d target = points.get(currentPointIndex).position;
+      // Current target point
+      Translation2d target = points.get(currentPointIndex).position;
 
-    double dx = target.getX() - currentPose.getX();
-    double dy = target.getY() - currentPose.getY();
+      // Distance to target
+      double dx = target.getX() - currentPose.getX();
+      double dy = target.getY() - currentPose.getY();
+      
+      double distance = Math.hypot(dx, dy);
 
-    double distance = Math.hypot(dx, dy);
+      // Convert target point to Pose3d for Limelight turnAngle
+      Pose3d targetPose = new Pose3d(target.getX(), target.getY(), 0.0, currentPose.getRotation());
 
-    // Field-relative angle
-    double angleToTarget = Math.toDegrees(Math.atan2(dy, dx));
+      // Robot-relative heading error
+      double turn = limelight.turnAngle(targetPose);
 
-    // Robot-relative heading error
-    double turn = pigeon.getHeadingError(angleToTarget);
+      // Simple proportional control
+      double forward = Math.min(distance, Max_Speed);
+      turn = Math.max(-Max_Turn, Math.min(turn, Max_Turn));
 
-    // Simple proportional control
-    double forward = Math.min(distance, Max_Speed);
-    turn = Math.max(-Max_Turn, Math.min(turn, Max_Turn));
+      tankDrive.arcadeDrive(forward, turn);
 
-    tankDrive.arcadeDrive(forward, turn);
-
-    // Move to next path point
-    if (distance < Position_Tolarance) {
-      currentPointIndex++;
-    }
+      if (distance < Position_Tolarance) {
+          currentPointIndex++;
+      }
   }
 
   // Stop driving at the end of the path

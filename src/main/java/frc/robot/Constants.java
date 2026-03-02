@@ -30,6 +30,30 @@ public final class Constants
     public static final String Depot_Climb_Red = "Depot Climb Red";
   }
 
+  public static class DashboardIds {
+    // AUTONOMOUS CHOICES
+    public static final String Autonomous_Choices = "Autonomous Choices";
+
+    // PLAYING FIELD TO VIEW ROBOTS POSE ON THE FIELD
+    public static final String Game_Field = "Game Field";
+
+    // CLIMBED POSITION
+    public static final String Climbed_Point = "Climbed Point";
+
+    // ALIGNED BOOLEAN
+    public static final String Aligned = "Aligned";
+
+    // APRILTAG TYPE | ANGLE TO APRILTAG (Camera to tag) | HEADING ERROR (Robot to tag) | DISTANCE TO APRIL TAG
+    public static final String AprilTag = "AprilTag";
+    public static final String Angle = "Angle";
+    public static final String Heading_Error = "Heading Error";
+    public static final String Distance = "Distance";
+
+    // SET RPM AND ANGLE
+    public static final String Set_Rpm = "Set Rpm";
+    public static final String Set_Angle = "Set Angle";
+  }
+
   public static class OperatorConstants {
     // CONTROLLER PORT ID
     public static final int kDriverControllerPort = 0;
@@ -113,29 +137,60 @@ public final class Constants
     // LIMELIGHT NAME
     public static final String Name = "limelight";
 
-    // APRILTAG OUTPOST IDS
-    public static final Set<Integer> Apriltag_Outpost = new HashSet<>(Arrays.asList(
-      1, 17
-    ));
+    // BLUE HUB RELATIVE TO FIELD
+    public static final Pose3d Blue_Hub = new Pose3d(
+      Units.inchesToMeters(181.29), 
+      Units.inchesToMeters(158.32), 
+      Units.inchesToMeters(72.00),
+      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
 
-    // APRILTAG SHOOTER IDS
-    public static final Set<Integer> Apriltag_Shoot_Right = new HashSet<>(Arrays.asList(
-      8, 24
-    ));
+    // BLUE OUTPOST RELATIVE TO FIELD
+    public static final Pose3d Blue_Outpost = new Pose3d(
+      Units.inchesToMeters(20.54), 
+      Units.inchesToMeters(25.62),
+      Units.inchesToMeters(21.75),
+       new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
-    public static final Set<Integer> Apriltag_Shoot_Left = new HashSet<>(Arrays.asList(
-      11, 27
-    ));
+    // BLUE CLIMBER POLES RELATIVE TO FIELD
+    public static final Pose3d Blue_Left_Pole = new Pose3d(
+      Units.inchesToMeters(40.55), 
+      Units.inchesToMeters(163.86), 
+      Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
-    public static final Set<Integer> Apriltag_Shoot = new HashSet<>(Arrays.asList(
-    10, 26
-    ));
+    public static final Pose3d Blue_Right_Pole = new Pose3d(
+      Units.inchesToMeters(40.55), 
+      Units.inchesToMeters(129.86), 
+      Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
-    // APRILTAG CLIMBER IDS
-    public static final Set<Integer> Apriltag_Climb = new HashSet<>(Arrays.asList(
-      15, 31
-    ));
+    // RED HUB RELATIVE TO FIELD
+    public static final Pose3d Red_Hub = new Pose3d(
+      Units.inchesToMeters(468.83),
+      Units.inchesToMeters(158.32), 
+      Units.inchesToMeters(72.00),
+      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
+    // RED OUTPOST RELATIVE TO FIELD
+    public static final Pose3d Red_Outpost = new Pose3d(
+      Units.inchesToMeters(629.58), 
+      Units.inchesToMeters(291.02), 
+      Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
+
+    // RED CLIMBER POLES RELATIVE TO FIELD
+    public static final Pose3d Red_Left_Pole = new Pose3d(
+      Units.inchesToMeters(632.57), 
+      Units.inchesToMeters(129.78), 
+      Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
+    
+    public static final Pose3d Red_Right_Pole = new Pose3d(
+      Units.inchesToMeters(666.57), 
+      Units.inchesToMeters(129.78),
+      Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
+    
     // APRIL TAG FIELD HASHMAP (ID, Pose3d)
     public static final HashMap<Integer, Pose3d> tagFieldMap = new HashMap<>(); static {
       tagFieldMap.put(1, new Pose3d(Units.inchesToMeters(467.08), Units.inchesToMeters(291.79), Units.inchesToMeters(35.00), new Rotation3d(0.0, 0.0, Math.toRadians(180))));

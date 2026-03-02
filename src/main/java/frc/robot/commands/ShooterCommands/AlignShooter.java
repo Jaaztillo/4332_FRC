@@ -28,9 +28,7 @@ public class AlignShooter extends Command {
    */
   @Override
   public void execute() {
-    if (!limelight.hasAprilTagShoot() && !limelight.hasAprilTagShootLeft() && !limelight.hasAprilTagShootRight()) return;
-    
-    Double distance = limelight.getTarget().getZ();
+    Double distance = limelight.getDistance(limelight.getCurrentTarget());
     
     shooter.setAngle(distance);
     shooter.setRPM(distance);

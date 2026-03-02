@@ -103,7 +103,7 @@ public class RobotContainer {
 
     // Align Drive and Angle + RPM to Hub
     controller01.rightBumper().whileTrue(new ParallelCommandGroup(
-      new AlignToTarget(tankDrive, limelight, pigeon, controller01),
+      new AlignToTarget(tankDrive, limelight, controller01),
       new AlignShooter(shooter, limelight)
     ));
     
@@ -120,10 +120,10 @@ public class RobotContainer {
     controller01.y().onTrue(new ClimbLevel_3(climber));
 
     // Turn Robot to Left Pole while driving
-    controller01.x().whileTrue(new AlignToTower(tankDrive, limelight, pigeon, controller01, "left"));
+    controller01.x().whileTrue(new AlignToTower(tankDrive, limelight, controller01, "Left"));
 
     // Turn Robot to Right Pole while driving
-    controller01.b().whileTrue(new AlignToTower(tankDrive, limelight, pigeon, controller01, "right"));
+    controller01.b().whileTrue(new AlignToTower(tankDrive, limelight, controller01, "Right"));
   }
 
   /**
@@ -137,9 +137,9 @@ public class RobotContainer {
   public Command getAutonomousCommand (String autoName) {
     switch (autoName) {
       case AutonomousNames.Depot_Climb_Blue:
-        return new DepotClimbBlue(tankDrive, limelight, pigeon, shooter, roller, climber);
+        return new DepotClimbBlue(tankDrive, limelight, shooter, roller, climber);
       case AutonomousNames.Depot_Climb_Red:
-        return new DepotClimbRed(tankDrive, limelight, pigeon, shooter, roller, climber);
+        return new DepotClimbRed(tankDrive, limelight, shooter, roller, climber);
       default:
         return null;
     }

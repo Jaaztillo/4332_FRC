@@ -6,15 +6,12 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import edu.wpi.first.math.MathUtil;
+
 // Subsystems
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.PigeonSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class AlignToTower extends Command {
-  /** Pole Offset from apriltag */
-  private double poleOffset = 0.409575;
-
   /** Turn Power Coefficients */
   private double kTurn = 0.5;
 
@@ -23,9 +20,6 @@ public class AlignToTower extends Command {
 
   /** Tankdrive Subsystem which can be used to control the drive train */
   private DriveSubsystem tankDrive;
-
-  /** Pigeon Subsystem to detect heading of robot */
-  private PigeonSubsystem pigeon;
 
   /** Controller to give feedback to driver when the climber is aligned */
   private CommandXboxController controller;
@@ -40,11 +34,10 @@ public class AlignToTower extends Command {
    * @param controller A Xbox Controller to rumble to the driver when the robot is aligned
    * @param side The side to decide which pole the robot will align to
    */
-  public AlignToTower(DriveSubsystem tankDrive, LimelightSubsystem limelight, PigeonSubsystem pigeon, CommandXboxController controller, String side) {
+  public AlignToTower(DriveSubsystem tankDrive, LimelightSubsystem limelight, CommandXboxController controller, String side) {
     this.tankDrive = tankDrive;
     this.limelight = limelight;
     this.controller = controller;
-    this.pigeon = pigeon;
     this.side = side;
 
     addRequirements();
@@ -55,22 +48,11 @@ public class AlignToTower extends Command {
    */
   @Override
   public void execute() {
-    if (!limelight.hasAprilTagClimb()) return;
-
-    // Get the offset position
-    double offsetX = side.equals("left") ? -poleOffset : poleOffset;
-
-     // Position 3D (foward, left, up)
-    limelight.setTarget(0.0, offsetX, 0.0);
-
-    // Get angle to turn to
-    double motorAngle = limelight.getPositionAngle();
-
-    // Get Angle to turn to / heading error
-    double headingError = pigeon.getHeadingError(motorAngle);
+    // Angle to turn to
+    double Theta = limelight.lookAtClimber(side);
 
     // Set turn power
-    double turn = headingError * kTurn;
+    double turn = Theta * kTurn;
 
     // Clamp Power from Minimum to Maximum in Tank Drive
     turn = MathUtil.clamp(turn, -1.0, 1.0);
@@ -87,10 +69,8 @@ public class AlignToTower extends Command {
     double left  = turn;
     double right = -turn;
 
-    limelight.setHeadingError(headingError);
-
     // Stop Turning Once Desired Angle is Reached
-    if (Math.abs(headingError) < 0.5) {
+    if (Math.abs(Theta) < 0.5) {
       tankDrive.resetAlignment();
       tankDrive.setAligned(true);
 
@@ -114,9 +94,8 @@ public class AlignToTower extends Command {
     tankDrive.resetAlignment();
     tankDrive.setAligned(false);
 
-    // Reset the limelights current target
-    limelight.resetTarget();
-    limelight.setHeadingError(0.0);
+    // Stop targeting with limelight
+    limelight.stopTargeting();
 
     // Stop Rumble controller
     controller.setRumble(RumbleType.kBothRumble, 0.0);
