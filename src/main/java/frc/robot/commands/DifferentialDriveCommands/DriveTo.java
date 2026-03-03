@@ -17,7 +17,9 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 
 public class DriveTo extends Command {
-  private final double Position_Tolarance = 0.05;
+  private final double Position_Tolarance = 0.2;
+  private static final double kP_Drive = 1.2;
+  private static final double kP_Turn = 2.5;
   private final double Max_Speed = 0.6;
   private final double Max_Turn = 0.6;
 
@@ -30,6 +32,8 @@ public class DriveTo extends Command {
   private String pathName;
 
   private PathPlannerPath path;
+
+  private boolean pathReversed;
 
   public DriveTo(DriveSubsystem tankDrive, LimelightSubsystem limelight, String pathName) {
     this.tankDrive = tankDrive;
@@ -47,6 +51,8 @@ public class DriveTo extends Command {
       path = PathPlannerPath.fromPathFile(pathName);
       points = path.getAllPathPoints();
       currentPointIndex = 0;
+
+      pathReversed = path.isReversed();
     } catch (IOException | FileVersionException | ParseException e) {
       System.out.println("Path unavailable!");
       path = null;
@@ -82,16 +88,31 @@ public class DriveTo extends Command {
       // Convert target point to Pose3d for Limelight turnAngle
       Pose3d targetPose = new Pose3d(target.getX(), target.getY(), 0.0, currentPose.getRotation());
 
-      // Robot-relative heading error
-      double turn = limelight.turnAngle(targetPose);
+      // Proportional Driving
+      double forward = kP_Drive * distance;
 
-      // Simple proportional control
-      double forward = Math.min(distance, Max_Speed);
+      forward = Math.min(forward, Max_Speed);
+
+      // Proportional Turning
+      double turn = kP_Turn * limelight.turnAngle(targetPose);
+
       turn = Math.max(-Max_Turn, Math.min(turn, Max_Turn));
 
+      // Reverse the robot drive and turn if the path is reversed
+      if (pathReversed) {
+        forward = -forward;
+        turn = -turn;
+      }
+
+      // Drive the chassis
       tankDrive.arcadeDrive(forward, turn);
 
-      if (distance < Position_Tolarance) {
+      System.out.printf("Point %d | dist=%.2f m | tol=%.2f m%n",
+        currentPointIndex, distance, Position_Tolarance
+      );
+      
+      // Go to the next point once we're close enough to the point
+      if (distance < Position_Tolarance && Math.abs(turn) < 0.15) {
           currentPointIndex++;
       }
   }
