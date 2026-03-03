@@ -15,8 +15,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 // Geometry
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -41,9 +43,6 @@ public class LimelightSubsystem extends SubsystemBase {
   // Servo Motor
   private final Servo servo = new Servo(LimelightConstants.Limelight_Motor_Id);
 
-  // Pose timeout (seconds)
-  private final double Field_Pose_Timeout = 1.5;
-
   // Last Target Pose
   private Pose3d lastFieldPose = null;
   private double lastPoseTimestamp = 0.0;
@@ -56,7 +55,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
   // Servo Roaming
   private double roamAngle = 0.0;
-  private double roamSpeed = 2.0; // degrees per call (20ms)
   private boolean increasing = true;
 
   // Dashboard Publishers
@@ -67,6 +65,7 @@ public class LimelightSubsystem extends SubsystemBase {
   
   /**
    * Limelight constructor
+   * Sets up the dashboard values
    */
   public LimelightSubsystem() {
     // Dashboard configuration
@@ -105,11 +104,11 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   /**
-   * Get the angle limelight motor is at
-   * @return the angle the motor is at
+   * get the current target the driver is aiming to
+   * @return the current target
    */
-  public double servoAngle () { 
-    return servo.getAngle(); 
+  public Pose3d getCurrentTarget () {
+    return currentTarget;
   }
 
   /**
@@ -167,14 +166,6 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   /**
-   * get the current target the driver is aiming to
-   * @return the current target
-   */
-  public Pose3d getCurrentTarget () {
-    return currentTarget;
-  }
-
-  /**
    * Gets the robots field-relative pose
    * @return field-relative pose of robot
    */
@@ -198,7 +189,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
       Transform3d cameraToRobot = new Transform3d(
           new Translation3d(5.75, 11.25, 11.00),
-          new Rotation3d(0.0, 0.0, Math.toRadians(servoAngle()-135))
+          new Rotation3d(0.0, 0.0, Math.toRadians(servo.getAngle() - LimelightConstants.Servo_To_Camera_Offset)) // Do the actual offset after finding out
       );
 
       lastFieldPose = tagFieldPose
@@ -210,7 +201,7 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     // Get Last Field Relative Robot Pose based on timeout
-    if (lastFieldPose != null && (now - lastPoseTimestamp) <= Field_Pose_Timeout) {
+    if (lastFieldPose != null && (now - lastPoseTimestamp) <= LimelightConstants.Field_Pose_Timeout) {
       return lastFieldPose;
     }
 
@@ -261,23 +252,23 @@ public class LimelightSubsystem extends SubsystemBase {
     if (hasValidTag()) {
       double tx = LimelightHelpers.getTX(LimelightConstants.Name);
 
-      double servoTarget = 135.0 + tx;
-      servoTarget = MathUtil.clamp(servoTarget, 0.0, 270.0);
+      double servoTarget = LimelightConstants.Servo_To_Camera_Offset + tx;
+      servoTarget = MathUtil.clamp(servoTarget, LimelightConstants.Minimum_Servo, LimelightConstants.Maximum_Servo);
 
       servo.setAngle(servoTarget);
       return;
     }
 
     if (increasing) {
-        roamAngle += roamSpeed;
-        if (roamAngle >= 270.0) {
-            roamAngle = 270.0;
+        roamAngle += LimelightConstants.Roam_Speed;
+        if (roamAngle >= LimelightConstants.Maximum_Servo) {
+            roamAngle = LimelightConstants.Maximum_Servo;
             increasing = false;
         }
     } else {
-        roamAngle -= roamSpeed;
-        if (roamAngle <= 0.0) {
-            roamAngle = 0.0;
+        roamAngle -= LimelightConstants.Roam_Speed;
+        if (roamAngle <= LimelightConstants.Minimum_Servo) {
+            roamAngle = LimelightConstants.Minimum_Servo;
             increasing = true;
         }
     }
@@ -403,16 +394,19 @@ public class LimelightSubsystem extends SubsystemBase {
 
     // Display robot pose on dashboard
     if (robotPose != null) {
-        var poseEntry = NetworkTableInstance.getDefault()
-          .getTable("SmartDashboard")
-          .getEntry(DashboardIds.Game_Field);
-
+        // 2D Robot Pose Components
         double x = robotPose.getX();
         double y = robotPose.getY();
-        double rot = Math.toDegrees(robotPose.getRotation().getZ());
+        double yaw = Math.toDegrees(robotPose.getRotation().getZ());
 
-        // Publish as array [x, y, yaw]
-        poseEntry.setDoubleArray(new double[]{x, y, rot});
+        // Update 2D Robot Pose on Dashboard
+        DashboardIds.Field.setRobotPose(
+          new Pose2d(x, y, new Rotation2d(yaw))
+        );
+
+        // Display 2D Robot Pose for debugging
+        System.out.printf("X: %.2f | Y: %.2f | Yaw | %.2f", 
+          x, y, yaw);
     }
   }
 }

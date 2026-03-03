@@ -29,8 +29,6 @@ public class Robot extends TimedRobot {
 
   private final SendableChooser<String> autonomousChooser = new SendableChooser<>();
 
-  private final Field2d field = new Field2d();
-
   private String autoSelected;
 
   /**
@@ -51,7 +49,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit () {
     SmartDashboard.putData(DashboardIds.Autonomous_Choices, autonomousChooser);
-    SmartDashboard.putData(DashboardIds.Game_Field, field);
+    SmartDashboard.putData(DashboardIds.Game_Field, DashboardIds.Field);
   }
 
   /**

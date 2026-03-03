@@ -7,6 +7,7 @@ import java.util.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 /* 
  * Ports: 
@@ -51,6 +52,9 @@ public final class Constants
     // SET RPM AND ANGLE
     public static final String Set_Rpm = "Set Rpm";
     public static final String Set_Angle = "Set Angle";
+
+    // FIELD 2D
+    public static final Field2d Field = new Field2d();
   }
 
   public static class OperatorConstants {
@@ -129,6 +133,24 @@ public final class Constants
 
     // LIMELIGHT NAME
     public static final String Name = "limelight";
+
+    // SERVO ROAM SPEED
+    public static final double Roam_Speed = 2.0;
+
+    // FIELD POSITION TIMEOUT AFTER WHILE NOT DRIVING BLINDLY
+    public static final double Field_Pose_Timeout = 1.5;
+
+    // ANGLE OFFSET FROM SERVO TO CAMERA
+    public static final double Servo_To_Camera_Offset = 135.0;
+
+    // MINIMUM ANGLE THE SERVO CAN MOVE TO
+    public static final double Minimum_Servo = 135.0;
+
+    // MAXIMUM ANGLE THE SERVO CAN MOVE TO
+    public static final double Maximum_Servo = 270.0;
+
+
+    //========== TARGET POSE ===========\\
 
     // BLUE HUB RELATIVE TO FIELD
     public static final Pose3d Blue_Hub = new Pose3d(
