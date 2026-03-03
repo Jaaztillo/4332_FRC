@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
     autonomousChooser.addOption("Depot Climb Red", AutonomousNames.Depot_Climb_Red);
 
     // Start Camera Server
-    CameraServer.startAutomaticCapture("Camera", 0);
+    //CameraServer.startAutomaticCapture("Camera", 0);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData(DashboardIds.Autonomous_Choices, autonomousChooser);
     SmartDashboard.putData(DashboardIds.Game_Field, field);
   }
-  
+
   /**
    * Run all the commands that are running periodically, without this nothing else works
    */
@@ -74,9 +74,10 @@ public class Robot extends TimedRobot {
 
     System.out.println("Auto selected: " + autoSelected);
 
-    autonomous = robotContainer.getAutonomousCommand(autoSelected);
+    // Set the autonomous command to the one the driver selected
+    autonomous = robotContainer.AutonomousCommand(autoSelected);
     
-    // schedule the autonomous command (example)
+    // schedule the autonomous command
     if (autonomous != null) {
       CommandScheduler.getInstance().schedule(autonomous);
     }

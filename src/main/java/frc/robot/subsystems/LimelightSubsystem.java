@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Limelight helpers
 import frc.robot.LimelightHelpers;
+
 import edu.wpi.first.math.MathUtil;
 // Geometry
 import edu.wpi.first.math.geometry.Pose3d;
@@ -107,7 +108,9 @@ public class LimelightSubsystem extends SubsystemBase {
    * Get the angle limelight motor is at
    * @return the angle the motor is at
    */
-  public double servoAngle () { return servo.getAngle(); }
+  public double servoAngle () { 
+    return servo.getAngle(); 
+  }
 
   /**
    * Get the angle we need to turn to
@@ -194,7 +197,7 @@ public class LimelightSubsystem extends SubsystemBase {
       );
 
       Transform3d cameraToRobot = new Transform3d(
-          new Translation3d(0.0, 0.0, 0.0),
+          new Translation3d(5.75, 11.25, 11.00),
           new Rotation3d(0.0, 0.0, Math.toRadians(servoAngle()-135))
       );
 
@@ -219,23 +222,13 @@ public class LimelightSubsystem extends SubsystemBase {
    * Get the angle from the robot to the hub
    * @return the target angle from the robot to the hub
    */
-  public double lookAtHub () {
+  public double lookAtTarget () {
     if (lastFieldPose == null) return 0.0;
 
-    currentTarget = getAlliance().equals("Red") ? LimelightConstants.Red_Hub : LimelightConstants.Blue_Hub;
+    currentTarget = getGridTarget(getAlliance()); 
+
+    if (currentTarget == null) return 0.0;
     
-    return turnAngle(currentTarget);
-  }
-
-  /**
-   * Get the angle from the robot to the outpost
-   * @return the target angle from the robot to the outpost
-   */
-  public double lookAtOutPost () {
-    if (lastFieldPose == null) return 0.0;
-
-    currentTarget = getAlliance().equals("Red") ? LimelightConstants.Red_Outpost : LimelightConstants.Blue_Outpost;
-
     return turnAngle(currentTarget);
   }
 
@@ -291,6 +284,81 @@ public class LimelightSubsystem extends SubsystemBase {
 
     servo.setAngle(roamAngle);
   }
+
+  private Pose3d getGridTarget (String alliance) {
+    if (lastFieldPose == null) return null;
+
+    return isInHubGrid(alliance) != null ? isInHubGrid(alliance) 
+    : isInOutpostGrid(alliance) != null ? isInOutpostGrid(alliance)
+    : isInAllianceAreaGrid(alliance);
+  }
+
+  private Pose3d isInHubGrid (String alliance) {
+    if (lastFieldPose == null) return null;
+
+    if (alliance.equals("Red")) {
+      // Target Red Hub
+      if (!robotInGrid(469, 650, 0, 316.64)) return null;
+
+      return LimelightConstants.Red_Hub;
+    
+    } else {
+      // Target Blue Hub
+      if (!robotInGrid(0, 181, 0, 316.64)) return null;
+
+      return LimelightConstants.Blue_Hub;
+    }
+  }
+
+  private Pose3d isInOutpostGrid (String alliance) {
+    if (lastFieldPose == null) return null;
+
+    if (alliance.equals("Red")) {
+      // Target Red Outpost
+      if (!robotInGrid(325.06, 469, 158.32, 316.64)) return null;
+
+      return LimelightConstants.Red_Outpost;
+    } else {
+      // Target Blue Outpost
+      if (!robotInGrid(181, 325.06, 0, 158.32)) return null;
+
+      return LimelightConstants.Blue_Outpost;
+    }
+  }
+
+  private Pose3d isInAllianceAreaGrid (String alliance) {
+    if (lastFieldPose == null) return null;
+
+    // Return the respectives alliance area no matter what
+    if (alliance.equals("Red")) {
+      return LimelightConstants.Red_Alliance_Area;
+    } else {
+      return LimelightConstants.Blue_Alliance_Area;
+    }
+  }
+
+  /**
+   * Check if the robot is in the grid provided
+   * 
+   * Grid starts from the top right relative to the field
+   * @param x1 right
+   * @param x2 left
+   * @param y1 top
+   * @param y2 bottom
+   * @return true if the robot is in the field and false otherwise
+   */
+  private boolean robotInGrid (double x1, double x2, double y1, double y2) {
+    double robot_x = lastFieldPose.getX();
+    double robot_y = lastFieldPose.getY();
+
+
+    // Check if robot is in the grid provided
+    if ((robot_x >= x1 && robot_x <= x2) && (robot_y >= y2 && robot_y <= y1)) {
+      return true;
+    }
+
+    return false;
+  } 
 
   /**
    * get the alliance color we are on

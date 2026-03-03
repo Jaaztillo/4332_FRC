@@ -13,8 +13,8 @@ import frc.robot.subsystems.RollerSubsystem;
 public class IndexFuel extends SequentialCommandGroup {
   public IndexFuel(RollerSubsystem roller) {
     addCommands(
-      // Wait 1 second
-      new WaitCommand(1.0),
+      // Wait 2 second
+      new WaitCommand(2.0),
 
       // Run Roller
       new StartEndCommand(

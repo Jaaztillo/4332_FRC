@@ -12,10 +12,10 @@ import frc.robot.subsystems.RollerSubsystem;
 public class ShootFuel extends ParallelCommandGroup {
   public ShootFuel(ShooterSubsystem shooter, RollerSubsystem roller) {
     addCommands(
-      // Start Aligning and running Shooter
+      // Run the shooter
       new StartEndCommand(
-        () -> shooter.shoot(),
-        () -> shooter.stop(),
+        shooter::shoot,
+        shooter::stop,
         shooter
       ),
       

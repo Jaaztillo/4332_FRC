@@ -64,8 +64,8 @@ public class AlignToTarget extends Command {
   @Override
   public void execute () {
     // Angle
-    double Theta = limelight.lookAtHub();
-
+    double Theta = limelight.lookAtTarget();
+    
     // Set turn power
     double turn = Theta * kTurn;
 

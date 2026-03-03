@@ -1,11 +1,7 @@
-/*
-  * MASTER PROGRAMMERS WORK
-  */
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 // Constants
@@ -22,14 +18,11 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ExtensionSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.PigeonSubsystem;
 
 // Commands
 import frc.robot.commands.DifferentialDriveCommands.TankDrive;
-import frc.robot.commands.DifferentialDriveCommands.AlignToTower;
 import frc.robot.commands.DifferentialDriveCommands.AlignToTarget;
-
-import frc.robot.commands.ShooterCommands.AlignShooter;
+import frc.robot.commands.DifferentialDriveCommands.AlignToTower;
 import frc.robot.commands.ShooterCommands.ShootFuel;
 
 import frc.robot.commands.IntakeCommands.ExtendIntake;
@@ -52,7 +45,6 @@ public class RobotContainer {
   private ClimberSubsystem climber = new ClimberSubsystem();
   private ShooterSubsystem shooter = new ShooterSubsystem();
   private DriveSubsystem tankDrive = new DriveSubsystem();
-  private PigeonSubsystem pigeon = new PigeonSubsystem();
   private RollerSubsystem roller = new RollerSubsystem();
   private IntakeSubsystem intake = new IntakeSubsystem();
 
@@ -67,25 +59,28 @@ public class RobotContainer {
   }
 
   private void configureBindings () {
-    /*
-     * == KEYBINDS ==
-     * LEFT JOYSTICK  : DRIVE
-     * RIGHT JOYSTICK : TURN
-     * 
-     * LEFT TRIGGER   : INTAKE
-     * RIGHT TRIGGER  : SHOOT
-     * 
-     * LEFT BUMPER    : EXTEND AND RETRACT INTAKE
-     * RIGHT BUMPER   : SHOOTING DRIVE TRAIN ALIGN && ANGLE AND RPM ALIGNING
-     * 
-     * BUTTON Y       : CLIMB TO LEVEL 3
-     * BUTTON X       : ALIGN TO LEFT RUNG
-     * BUTTON B       : ALIGN TO RIGHT RUNG
-    */
 
-    // ==== TANK DRIVE BINDING ==== \\
+    /*********************************************************************************
+     *                      //====== KEYBINDS ======\\
+     * 
+     *                        LEFT JOYSTICK  | DRIVE
+     *                        RIGHT JOYSTICK | TURN
+     * 
+     *                        LEFT BUMPER    | EXTEND / RETRACT INTAKE                       
+     *                        LEFT TRIGGER   | INTAKE
+     *                        
+     *                        RIGHT TRIGGER  | SHOOT TO TARGET
+     * 
+     *                        BUTTON Y       | CLIMB TO LEVEL 3
+     *                        BUTTON X       | ALIGN TO LEFT RUNG
+     *                        BUTTON B       | ALIGN TO RIGHT RUNG
+     * 
+     **********************************************************************************/
 
-    // Tank_Drive Default Command
+    // What if aldo doesn't align with anything what if when he pressed the shoot button depending on the robots pose on the field
+    // We shoot either to our alliance side, outpost or hub
+
+    // == TANKDRIVE BINDING == \\
     tankDrive.setDefaultCommand(
         new TankDrive(tankDrive,
           () -> controller01.getLeftY(), () -> controller01.getRightX())
@@ -93,21 +88,12 @@ public class RobotContainer {
 
     // ==== INTAKE BINDING ==== \\
 
-    // Intake Command
     controller01.leftTrigger().whileTrue(new IntakeFuel(intake));
-
-    // Extend or Retract Command 
     controller01.leftBumper().toggleOnTrue(new ExtendIntake(extension));
 
     // ==== SHOOTER BINDING ==== \\
 
-    // Align Drive and Angle + RPM to Hub
-    controller01.rightBumper().whileTrue(new ParallelCommandGroup(
-      new AlignToTarget(tankDrive, limelight, controller01),
-      new AlignShooter(shooter, limelight)
-    ));
-    
-    // Shooter Parallel Sequence (Run Shooter Motor -> and -> (1 second -> then -> Run Roller Motor))
+    // On right trigger run sequence command align to target then shoot
     controller01.rightTrigger().whileTrue(new ShootFuel(shooter, roller));
 
     // ==== CLIMBER BINDING ==== \\
@@ -116,13 +102,8 @@ public class RobotContainer {
     controller01.povUp().whileTrue(new ClimbFoward(climber));
     controller01.povDown().whileTrue(new ClimbReverse(climber));
 
-    // Climb Up (Levels : 3)
     controller01.y().onTrue(new ClimbLevel_3(climber));
-
-    // Turn Robot to Left Pole while driving
     controller01.x().whileTrue(new AlignToTower(tankDrive, limelight, controller01, "Left"));
-
-    // Turn Robot to Right Pole while driving
     controller01.b().whileTrue(new AlignToTower(tankDrive, limelight, controller01, "Right"));
   }
 
@@ -134,7 +115,12 @@ public class RobotContainer {
     return climber;
   }
 
-  public Command getAutonomousCommand (String autoName) {
+  /**
+   * gets the autonomous command with the name given to it
+   * @param autoName the name of the autonomous you want to perform
+   * @return the autnomous command with the name given
+   */
+  public Command AutonomousCommand (String autoName) {
     switch (autoName) {
       case AutonomousNames.Depot_Climb_Blue:
         return new DepotClimbBlue(tankDrive, limelight, shooter, roller, climber);

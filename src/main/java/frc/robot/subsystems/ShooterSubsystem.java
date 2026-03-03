@@ -104,7 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void shoot() 
   {
-    shooting = true;
+    shooting = true; // set to true later
   }
 
   /**

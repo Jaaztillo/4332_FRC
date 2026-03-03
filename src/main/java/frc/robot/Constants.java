@@ -150,6 +150,13 @@ public final class Constants
       Units.inchesToMeters(25.62),
       Units.inchesToMeters(21.75),
        new Rotation3d(0.0, 0.0, Math.toRadians(0)));
+    
+    // BLUE ALLIANCE AREA RELATIVE TO FIELD
+    public static final Pose3d Blue_Alliance_Area = new Pose3d(
+      Units.inchesToMeters(90.00), 
+      Units.inchesToMeters(242.09), 
+      Units.inchesToMeters(35.00), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
     // BLUE CLIMBER POLES RELATIVE TO FIELD
     public static final Pose3d Blue_Left_Pole = new Pose3d(
@@ -176,6 +183,13 @@ public final class Constants
       Units.inchesToMeters(629.58), 
       Units.inchesToMeters(291.02), 
       Units.inchesToMeters(21.75), 
+      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
+    
+    // RED ALLIANCE AREA RELATIVE TO FIELD
+    public static final Pose3d Red_Alliance_Area = new Pose3d(
+      Units.inchesToMeters(560), 
+      Units.inchesToMeters(74.55), 
+      Units.inchesToMeters(35.00), 
       new Rotation3d(0.0, 0.0, Math.toRadians(180)));
 
     // RED CLIMBER POLES RELATIVE TO FIELD
