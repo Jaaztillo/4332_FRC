@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -23,6 +24,7 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.commands.DifferentialDriveCommands.TankDrive;
 import frc.robot.commands.DifferentialDriveCommands.AlignToTarget;
 import frc.robot.commands.DifferentialDriveCommands.AlignToTower;
+import frc.robot.commands.ShooterCommands.AlignShooter;
 import frc.robot.commands.ShooterCommands.ShootFuel;
 
 import frc.robot.commands.IntakeCommands.ExtendIntake;
@@ -94,7 +96,14 @@ public class RobotContainer {
     // ==== SHOOTER BINDING ==== \\
 
     // On right trigger run sequence command align to target then shoot
-    controller01.rightTrigger().whileTrue(new ShootFuel(shooter, roller));
+    controller01.rightTrigger().whileTrue(new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new AlignToTarget(tankDrive, limelight),
+        new AlignShooter(shooter, limelight)
+      ),
+      new ShootFuel(shooter, roller, limelight)
+    ));
+      
 
     // ==== CLIMBER BINDING ==== \\
 

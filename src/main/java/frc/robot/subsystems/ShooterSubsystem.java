@@ -21,23 +21,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.ClosedLoopSlot;
 
-// Servo
-import edu.wpi.first.wpilibj.Servo;
-
 // Constants
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.DashboardIds;
-import frc.robot.Constants.HoodConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   // RPM Map
   private final InterpolatingDoubleTreeMap rpmMap = new InterpolatingDoubleTreeMap();
-
-  // Angle Map
-  private final InterpolatingDoubleTreeMap angleMap = new InterpolatingDoubleTreeMap();
-
-  // Servo Motor
-  private final Servo servo = new Servo(HoodConstants.Hood_ID);
 
   // Shooter Motor
   private final SparkMax shooterMotor = new SparkMax(ShooterConstants.Shooter_ID, MotorType.kBrushless);
@@ -48,8 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
   // Shooter configuration
   private final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
-  // Current angle and rpm
-  private Double angle = 0.0;
+  // Current rpm
   private Double rpm = 0.0;
 
   // Shooting Flag
@@ -57,7 +46,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // Dashboard data publishers
   private final DoublePublisher rpmPublisher;
-  private final DoublePublisher anglePublisher;
 
   /**
    * Configure the Shooter Subsystem
@@ -79,9 +67,8 @@ public class ShooterSubsystem extends SubsystemBase {
     
     shooterMotor.configure(shooterConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-    // Setup Interpolation Maps
+    // Setup RPM Interpolation Map
     setRpmMap();
-    setAngleMap();
 
     // Initialize publishers on SmartDashboard table
     rpmPublisher = NetworkTableInstance.getDefault()
@@ -89,14 +76,8 @@ public class ShooterSubsystem extends SubsystemBase {
         .getDoubleTopic(DashboardIds.Set_Rpm)
         .publish();
 
-    anglePublisher = NetworkTableInstance.getDefault()
-        .getTable("SmartDashboard")
-        .getDoubleTopic(DashboardIds.Set_Angle)
-        .publish();
-
     // Set initial values
     rpmPublisher.set(0.0);
-    anglePublisher.set(0.0);
   }
 
   /**
@@ -115,21 +96,12 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor.stopMotor();
   }
 
-  /**
-   * Set angle of the shooter based on the distance
-   * @param angle angle to set shooter at based on distance
-   */
-  public void setAngle (double distance) { 
-    distance = MathUtil.clamp(distance, 1.0, 6.0);
+  public boolean atSetpoint() {
+    double velocity = shooterMotor.getEncoder().getVelocity();
+    double error = Math.abs(velocity - this.rpm);
     
-    this.angle = angleMap.get(distance); 
+    return error < ShooterConstants.Rpm_Tolerance;
   }
-
-  /**
-   * Testing to get the perfect angle based on the distance
-   * @param angle angle to set shooter at
-   */
-  public void setAngleSimple (double angle) { this.angle = angle; }
 
   /*
    * For testing to find perfect rpm based on distance
@@ -157,20 +129,10 @@ public class ShooterSubsystem extends SubsystemBase {
         .getEntry(DashboardIds.Set_Rpm)
         .getDouble(this.rpm);
 
-    double angleInput = NetworkTableInstance.getDefault()
-        .getTable("SmartDashboard")
-        .getEntry(DashboardIds.Set_Angle)
-        .getDouble(this.angle);
-
     setRpmSimple(rpmInput);
-    setAngleSimple(angleInput);
 
     // Update values if input changed
     if (rpmInput != this.rpm) this.rpm = rpmInput;
-    if (angleInput != this.angle) this.angle = angleInput;
-
-    // Set Servo Angle
-    servo.setAngle(this.angle);
 
     // Set Motor RPM
     if (!shooting) return;
@@ -186,15 +148,5 @@ public class ShooterSubsystem extends SubsystemBase {
     rpmMap.put(4.0, 1600.0);
     rpmMap.put(5.0, 1800.0);
     rpmMap.put(6.0, 2000.0);
-  }
-
-  /** Set up the Angle Map */
-  private void setAngleMap () {
-    angleMap.put(1.0, 65.0);
-    angleMap.put(2.0, 50.0);
-    angleMap.put(3.0, 45.0);
-    angleMap.put(4.0, 50.0);
-    angleMap.put(5.0, 55.0);
-    angleMap.put(6.0, 60.0);
   }
 }

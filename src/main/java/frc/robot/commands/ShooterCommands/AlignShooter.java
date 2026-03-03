@@ -28,9 +28,10 @@ public class AlignShooter extends Command {
    */
   @Override
   public void execute() {
+    if (limelight.getCurrentTarget() == null) return;
+
     Double distance = limelight.getDistance(limelight.getCurrentTarget());
     
-    shooter.setAngle(distance);
     shooter.setRPM(distance);
   }
 
@@ -39,7 +40,6 @@ public class AlignShooter extends Command {
    */
   @Override
   public void end(boolean interrupted) {
-    shooter.setAngle(4);
     shooter.setRPM(4);
   }
 

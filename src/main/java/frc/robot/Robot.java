@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
     autonomousChooser.addOption("Depot Climb Red", AutonomousNames.Depot_Climb_Red);
 
     // Start Camera Server
-    //CameraServer.startAutomaticCapture("Camera", 0);
+    CameraServer.startAutomaticCapture("Camera", 0);
   }
 
   @Override

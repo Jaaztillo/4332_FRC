@@ -23,7 +23,7 @@ public class DepotClimbRed extends SequentialCommandGroup {
       new DriveTo(tankDrive, limelight, "backupDepotRed"),
       new DriveTo(tankDrive, limelight, "shootRed"),
       new AlignToHub(tankDrive, shooter, limelight),
-      new ShootFuel(shooter, roller).withTimeout(3.0),
+      new ShootFuel(shooter, roller, limelight).withTimeout(3.0),
       new DriveTo(tankDrive, limelight, "toHubRed"),
       new DriveTo(tankDrive, limelight, "toClimberRed"),
       new Climb(climber, 1)

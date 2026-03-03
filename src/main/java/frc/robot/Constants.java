@@ -15,7 +15,6 @@ import edu.wpi.first.math.util.Units;
  *  6 (Intake)
  *  7 (Shooter)
  *  8 (Roller)
- *  9 (Hood)
  *  10, 11 (Climb)
  *  12 (Extend)
  *  13 (Extend Limit Switch)
@@ -87,19 +86,13 @@ public final class Constants
 
     // SHOOTER ID
     public static final int Shooter_ID = 7;
+
+    public static final int Rpm_Tolerance = 25;
   }
 
   public static class RollerConstants {
     // ROLLER ID
     public static final int Roller_ID = 8;
-  }
-
-  public static class HoodConstants {
-    // Distance Factor
-    public static final double Factor = 1;
-
-    // HOOD ID
-    public static final int Hood_ID = 9;
   }
 
   public static class ClimbConstants {
