@@ -4,15 +4,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-// Camera Server
-import edu.wpi.first.cameraserver.CameraServer;
-
 // ShuffleBoard
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-
-import frc.robot.commands.ClimbCommands.ClimbDown;
 
 import frc.robot.Constants.AutonomousNames;
 import frc.robot.Constants.DashboardIds;
@@ -39,11 +33,8 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
 
     // Display Autonomous Options on Dashboard
-    autonomousChooser.setDefaultOption("Depot Climb Blue", AutonomousNames.Depot_Climb_Blue);
-    autonomousChooser.addOption("Depot Climb Red", AutonomousNames.Depot_Climb_Red);
-
-    // Start Camera Server
-    CameraServer.startAutomaticCapture("Camera", 0);
+    autonomousChooser.addOption("Test", AutonomousNames.Test_Auton);
+    autonomousChooser.addOption("Drive", "Drive");
   }
 
   @Override
@@ -70,8 +61,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     autoSelected = autonomousChooser.getSelected();
 
-    System.out.println("Auto selected: " + autoSelected);
-
     // Set the autonomous command to the one the driver selected
     autonomous = robotContainer.AutonomousCommand(autoSelected);
     
@@ -94,8 +83,6 @@ public class Robot extends TimedRobot {
     if (autonomous != null) {
       autonomous.cancel();
     }
-
-    CommandScheduler.getInstance().schedule(new ClimbDown(robotContainer.getClimber()));;
   }
 
   /** This function is called periodically during operator control. */

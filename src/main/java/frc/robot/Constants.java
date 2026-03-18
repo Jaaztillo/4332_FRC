@@ -1,7 +1,6 @@
 package frc.robot;
 
-// Java utils (Hashmap, Arrays)
-import java.util.*;
+import java.util.HashMap;
 
 // Position and Rotation
 import edu.wpi.first.math.geometry.Pose3d;
@@ -10,24 +9,20 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 /* 
- * Ports: 
+ * CAN Ports: 
  *  1, 2, 3, 4 (TANK)
  *  5 (Pigeon 2.0)
  *  6 (Intake)
- *  7 (Shooter)
+ *  7 (Conveyor)
  *  8 (Roller)
- *  10, 11 (Climb)
- *  12 (Extend)
- *  13 (Extend Limit Switch)
- *  14 (Retract Limit Switch)
- *  15 Limelight Motor
+ *  9 (Extension)
+ *  10, 11 (Shooter)
  */
 
 public final class Constants 
 {
   public static class AutonomousNames {
-    public static final String Depot_Climb_Blue = "Depot Climb Blue";
-    public static final String Depot_Climb_Red = "Depot Climb Red";
+    public static final String Test_Auton = "Test";
   }
 
   public static class DashboardIds {
@@ -36,25 +31,17 @@ public final class Constants
 
     // PLAYING FIELD TO VIEW ROBOTS POSE ON THE FIELD
     public static final String Game_Field = "Game Field";
+    public static final Field2d Field = new Field2d();
 
-    // CLIMBED POSITION
-    public static final String Climbed_Point = "Climbed Point";
+    // ROBOT POSE
+    public static final String Pose = "Pose (x, y, yaw)";
 
-    // ALIGNED BOOLEAN
-    public static final String Aligned = "Aligned";
-
-    // APRILTAG TYPE | ANGLE TO APRILTAG (Camera to tag) | HEADING ERROR (Robot to tag) | DISTANCE TO APRIL TAG
-    public static final String AprilTag = "AprilTag";
-    public static final String Angle = "Angle";
+    // APRILTAG HEADING ERROR | APRILTAG DISTANCE
     public static final String Heading_Error = "Heading Error";
     public static final String Distance = "Distance";
 
     // SET RPM AND ANGLE
     public static final String Set_Rpm = "Set Rpm";
-    public static final String Set_Angle = "Set Angle";
-
-    // FIELD 2D
-    public static final Field2d Field = new Field2d();
   }
 
   public static class OperatorConstants {
@@ -69,6 +56,15 @@ public final class Constants
 
     public static final int Right_Leader_ID   = 3;
     public static final int Right_Follower_ID = 4;
+
+    // Track Width | Meters (MEASURE)
+    public static final double Track_Width = 0.6;
+
+    // Wheel Diamater | Meters (MEASURE)
+    public static final double Wheel_Diameter = 0.1524;
+
+    // Gear Ratio (ASK)
+    public static final double Gear_Ratio = 1.0;
   }
 
   public static class PigeonConstants {
@@ -81,17 +77,9 @@ public final class Constants
     public static final int Intake_ID = 6;
   }
 
-  public static class ShooterConstants {
-    // PID VALUES
-    public static final double P  = 0.0001;
-    public static final double I  = 0;
-    public static final double D  = 0;
-    public static final double FF = 0.0002;
-
-    // SHOOTER ID
-    public static final int Shooter_ID = 7;
-
-    public static final int Rpm_Tolerance = 25;
+  public static class ConveyerConstants {
+    // CONVEYOR ID
+    public static final int Conveyer_ID = 7;
   }
 
   public static class RollerConstants {
@@ -99,7 +87,10 @@ public final class Constants
     public static final int Roller_ID = 8;
   }
 
-  public static class ClimbConstants {
+  public static class ExtendConstants {
+    // EXTENDER ID
+    public static final int Extend_ID = 9;
+
     // PID VALUES
     public static final double P = 0.1;
     public static final double I = 0.0;
@@ -108,50 +99,37 @@ public final class Constants
     // POSITION FACTOR
     public static final double PositionFactor = 0.2;
 
-    // RUNG DISTANCES
-    public static final double First_Rung_Distance  = 24;
-    public static final double Second_Rung_Distance = 16;
-    public static final double Third_Rung_Distance  = 16;
-    public static final double Retract_Distance     = 0;
+    // EXTEND POSITION
+    public static final double Extend_Position = 2.0;
 
-    // CLIMB MOTOR IDS
-    public static final int Climb_Left_ID   = 11;
-    public static final int Climb_Right_ID  = 10;
+    // EXTEND POSITION
+    public static final double Retract_Position = 0;
   }
 
-  public static class ExtendConstants {
-    // EXTENDER ID
-    public static final int Extend_ID = 12;
+  public static class ShooterConstants {
+    // PID VALUES
+    public static final double P  = 0.0001;
+    public static final double I  = 0;
+    public static final double D  = 0;
+    public static final double FF = 0.0002;
 
-    public static final int Extend_Limit_Port = 13;
-    public static final int Retract_Limit_Port = 14;
+    // SHOOTER ID
+    public static final int Primary_Shooter_ID = 10;
+    public static final int Follower_Shooter_ID = 11;
+
+    // RPM TOLERANCE
+    public static final int Rpm_Tolerance = 10;
   }
   
   public static class LimelightConstants {
-    // LIMELIGHT MOTOR ID
-    public static final int Limelight_Motor_Id = 15;
-
     // LIMELIGHT NAME
-    public static final String Name = "limelight";
+    public static final String Limelight = "limelight";
 
-    // SERVO ROAM SPEED
-    public static final double Roam_Speed = 2.0;
+    // REAR LIMELIGHT NAME
+    public static final String Rear_Limelight = "rear limelight";
+  }
 
-    // FIELD POSITION TIMEOUT AFTER WHILE NOT DRIVING BLINDLY
-    public static final double Field_Pose_Timeout = 1.5;
-
-    // ANGLE OFFSET FROM SERVO TO CAMERA
-    public static final double Servo_To_Camera_Offset = 135.0;
-
-    // MINIMUM ANGLE THE SERVO CAN MOVE TO
-    public static final double Minimum_Servo = 135.0;
-
-    // MAXIMUM ANGLE THE SERVO CAN MOVE TO
-    public static final double Maximum_Servo = 270.0;
-
-
-    //========== TARGET POSE ===========\\
-
+  public static class GamePoseConstants {
     // BLUE HUB RELATIVE TO FIELD
     public static final Pose3d Blue_Hub = new Pose3d(
       Units.inchesToMeters(181.29), 
@@ -173,19 +151,6 @@ public final class Constants
       Units.inchesToMeters(35.00), 
       new Rotation3d(0.0, 0.0, Math.toRadians(0)));
 
-    // BLUE CLIMBER POLES RELATIVE TO FIELD
-    public static final Pose3d Blue_Left_Pole = new Pose3d(
-      Units.inchesToMeters(40.55), 
-      Units.inchesToMeters(163.86), 
-      Units.inchesToMeters(21.75), 
-      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
-
-    public static final Pose3d Blue_Right_Pole = new Pose3d(
-      Units.inchesToMeters(40.55), 
-      Units.inchesToMeters(129.86), 
-      Units.inchesToMeters(21.75), 
-      new Rotation3d(0.0, 0.0, Math.toRadians(0)));
-
     // RED HUB RELATIVE TO FIELD
     public static final Pose3d Red_Hub = new Pose3d(
       Units.inchesToMeters(468.83),
@@ -205,19 +170,6 @@ public final class Constants
       Units.inchesToMeters(560), 
       Units.inchesToMeters(74.55), 
       Units.inchesToMeters(35.00), 
-      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
-
-    // RED CLIMBER POLES RELATIVE TO FIELD
-    public static final Pose3d Red_Left_Pole = new Pose3d(
-      Units.inchesToMeters(632.57), 
-      Units.inchesToMeters(129.78), 
-      Units.inchesToMeters(21.75), 
-      new Rotation3d(0.0, 0.0, Math.toRadians(180)));
-    
-    public static final Pose3d Red_Right_Pole = new Pose3d(
-      Units.inchesToMeters(666.57), 
-      Units.inchesToMeters(129.78),
-      Units.inchesToMeters(21.75), 
       new Rotation3d(0.0, 0.0, Math.toRadians(180)));
     
     // APRIL TAG FIELD HASHMAP (ID, Pose3d)

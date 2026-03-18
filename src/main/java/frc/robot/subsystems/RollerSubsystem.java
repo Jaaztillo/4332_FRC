@@ -19,14 +19,14 @@ public class RollerSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the speed of the roller motors.
+   * Run the roller motor
    */
   public void run() {
     TalonSRX.set(1);
   }
 
   /**
-   * Stops the roller motors by setting their speed to 0.
+   * Stops the roller motor
    */
   public void stop() {
     TalonSRX.stopMotor();

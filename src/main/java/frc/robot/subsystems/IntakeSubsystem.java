@@ -25,7 +25,7 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void run ()
   {
-    Intake.set(1.0);
+    Intake.set(-0.8);
   }
 
   /**

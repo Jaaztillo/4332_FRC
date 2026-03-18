@@ -1,26 +1,27 @@
 package frc.robot.commands.ShooterCommands;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 // Subsystems
-import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class AlignShooter extends Command {
   /** The Shooter subsystem which controls the velocity and angle of the shooter mechanism */
   private ShooterSubsystem shooter;
 
-  /** The limelight subsystem which let's us get data for distance control */
-  private LimelightSubsystem limelight;
+  /** The Drive subsystem which let's us get data for distance control */
+  private DriveSubsystem drive;
 
   /**
    * 
    * @param shooter the subsystem which will make sure the RPM and Angle match to shoot towards the desired location
-   * @param limelight the subsystem used to measure the distance
+   * @param drive the subsystem used to measure the distance
    */
-  public AlignShooter(ShooterSubsystem shooter, LimelightSubsystem limelight) {
+  public AlignShooter(ShooterSubsystem shooter, DriveSubsystem drive) {
     this.shooter = shooter;
-    this.limelight = limelight;
+    this.drive = drive;
   }
 
   /**
@@ -28,9 +29,11 @@ public class AlignShooter extends Command {
    */
   @Override
   public void execute() {
-    if (limelight.getCurrentTarget() == null) return;
+    Pose3d target = drive.getGridTarget();
 
-    Double distance = limelight.getDistance(limelight.getCurrentTarget());
+    if (target == null) return;
+
+    Double distance = drive.getDistance(target);
     
     shooter.setRPM(distance);
   }
@@ -39,12 +42,10 @@ public class AlignShooter extends Command {
    * Returns the RPM and Angle to it's original state on end
    */
   @Override
-  public void end(boolean interrupted) {
-    shooter.setRPM(4);
-  }
+  public void end(boolean interrupted) {}
 
   /**
-   * Command only ends once driver lets go of the shooter keybind
+   * Command only ends once driver lets go of the button
    */
   @Override
   public boolean isFinished() { return false; }

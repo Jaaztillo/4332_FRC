@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -29,20 +30,24 @@ public class ShooterSubsystem extends SubsystemBase {
   // RPM Map
   private final InterpolatingDoubleTreeMap rpmMap = new InterpolatingDoubleTreeMap();
 
-  // Shooter Motor
-  private final SparkMax shooterMotor = new SparkMax(ShooterConstants.Shooter_ID, MotorType.kBrushless);
+  // Primary Shooter Motor
+  private final SparkMax primary = new SparkMax(ShooterConstants.Primary_Shooter_ID, MotorType.kBrushless);
+
+  // Follower Motor
+  private final SparkMax follower = new SparkMax(ShooterConstants.Follower_Shooter_ID, MotorType.kBrushless);
 
   // Shooter PID
-  private final SparkClosedLoopController shooterPid = shooterMotor.getClosedLoopController();
-
+  private final SparkClosedLoopController encoder = primary.getClosedLoopController();
+  
   // Shooter configuration
-  private final SparkMaxConfig shooterConfig = new SparkMaxConfig();
-
-  // Current rpm
-  private Double rpm = 0.0;
+  private final SparkMaxConfig primaryConfig = new SparkMaxConfig();
+  private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
   // Shooting Flag
   private boolean shooting = false;
+
+  // Current rpm
+  private Double rpm = 0.0;
 
   // Dashboard data publishers
   private final DoublePublisher rpmPublisher;
@@ -53,19 +58,37 @@ public class ShooterSubsystem extends SubsystemBase {
   @SuppressWarnings({"removal"})
   public ShooterSubsystem() {
     // Configure current and voltage limit
-    shooterConfig
+    primaryConfig
       .smartCurrentLimit(40)
       .voltageCompensation(12);
 
     // Configure PID values
-    shooterConfig.closedLoop
+    primaryConfig.closedLoop
+        .p(ShooterConstants.P)
+        .i(ShooterConstants.I)
+        .d(ShooterConstants.D)
+        .velocityFF(ShooterConstants.FF) 
+        .outputRange(-1, 1);
+
+    // Configure Follower and invert + follow the primary motor
+    followerConfig
+      .smartCurrentLimit(40)
+      .voltageCompensation(12)
+      .idleMode(IdleMode.kCoast)
+      .follow(primary, true);
+
+    // Configure PID values
+    followerConfig.closedLoop
         .p(ShooterConstants.P)
         .i(ShooterConstants.I)
         .d(ShooterConstants.D)
         .velocityFF(ShooterConstants.FF) 
         .outputRange(-1, 1);
     
-    shooterMotor.configure(shooterConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    primary.configure(primaryConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    follower.configure(followerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+
+    
 
     // Setup RPM Interpolation Map
     setRpmMap();
@@ -93,33 +116,45 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void stop() {
     shooting = false;
-    shooterMotor.stopMotor();
+    primary.stopMotor();
   }
-
-  public boolean atSetpoint() {
-    double velocity = shooterMotor.getEncoder().getVelocity();
-    double error = Math.abs(velocity - this.rpm);
-    
-    return error < ShooterConstants.Rpm_Tolerance;
-  }
-
-  /*
-   * For testing to find perfect rpm based on distance
-   */
-  public void setRpmSimple (double rpm) { this.rpm = rpm; }
 
   /** 
    * Sets the shooter to a specific RPM using the SparkMax PID controller
-   * @param rpm Target velocity in Rotations Per Minute
+   * @param distance Target distance to determine RPM
    */
   public void setRPM(double distance) {
-    distance = MathUtil.clamp(distance, 1.0, 6.0);
+    distance = MathUtil.clamp(distance, 1.0, 9.0);
 
     rpm = rpmMap.get(distance);
   }
 
   /**
-   * Periodically get the client input for RPM and Angle (For testing)
+   * get true if the motor has reached it's current RPM or false if the motor has not reached it's current RPM
+   * @return if the motor has reached it's current RPM
+   */
+  public boolean atRPM() {
+    double velocity = primary.getEncoder().getVelocity();
+    double error = Math.abs(velocity - this.rpm);
+    
+    return error < ShooterConstants.Rpm_Tolerance;
+  }
+
+  /** Set up the RPM Map */
+  private void setRpmMap () {
+    rpmMap.put(1.0, 1225.0);
+    rpmMap.put(2.0, 1500.0);
+    rpmMap.put(3.0, 1725.0);
+    rpmMap.put(4.0, 1850.0);
+    rpmMap.put(5.0, 3000.0);
+    rpmMap.put(6.0, 3500.0);
+    rpmMap.put(7.0, 4250.0);
+    rpmMap.put(8.0, 5000.0);
+    rpmMap.put(9.0, 6000.0);
+  }
+
+  /**
+   * Periodically get the client input for RPM
    */
   @Override
   public void periodic() {
@@ -129,24 +164,12 @@ public class ShooterSubsystem extends SubsystemBase {
         .getEntry(DashboardIds.Set_Rpm)
         .getDouble(this.rpm);
 
-    setRpmSimple(rpmInput);
-
     // Update values if input changed
     if (rpmInput != this.rpm) this.rpm = rpmInput;
 
     // Set Motor RPM
     if (!shooting) return;
 
-    shooterPid.setSetpoint(this.rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-  }
-
-  /** Set up the RPM Map */
-  private void setRpmMap () {
-    rpmMap.put(1.0, 1200.0);
-    rpmMap.put(2.0, 1200.0);
-    rpmMap.put(3.0, 1400.0);
-    rpmMap.put(4.0, 1600.0);
-    rpmMap.put(5.0, 1800.0);
-    rpmMap.put(6.0, 2000.0);
+    encoder.setSetpoint(this.rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 }

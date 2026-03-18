@@ -10,7 +10,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class TankDrive extends Command {
   /** Tank Drive Subsystem which controls the drive train */
-  private DriveSubsystem tankDrive;
+  private DriveSubsystem drive;
 
   /** fowardPercent -> LeftJoystick | rotationPercent -> RightJoystick*/
   private DoubleSupplier fowardPercent;
@@ -22,13 +22,13 @@ public class TankDrive extends Command {
    * @param fowardPercent the value from the left joystick to control the drive
    * @param rotationPercent the value from the right joystick to control the twist
    */
-  public TankDrive(DriveSubsystem tankDrive, DoubleSupplier fowardPercent, DoubleSupplier rotationPercent) {
-    this.tankDrive = tankDrive;
+  public TankDrive(DriveSubsystem drive, DoubleSupplier fowardPercent, DoubleSupplier rotationPercent) {
+    this.drive = drive;
 
     this.fowardPercent = fowardPercent;
     this.rotationPercent = rotationPercent;
 
-    addRequirements(tankDrive);
+    addRequirements(drive);
   }
 
   /**
@@ -42,12 +42,12 @@ public class TankDrive extends Command {
     double rotationDeadband = MathUtil.applyDeadband(rotationPercent.getAsDouble(), 0.04);
 
     // Arcade drive
-    tankDrive.drive(fowardDeadband, rotationDeadband);
+    drive.arcadeDrive(fowardDeadband, rotationDeadband);
   }
   
   /** Drive train stops when command ends */
   @Override
-  public void end(boolean interrupted) { tankDrive.stop(); }
+  public void end(boolean interrupted) { drive.stop(); }
 
   /** command only stops when driver lets go of the keybind */
   @Override
